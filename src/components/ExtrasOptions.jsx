@@ -33,7 +33,7 @@ const ExtrasOptions = ({ extras, setExtras, extrasCatalog }) => {
                   checked={extras.some((item) => item.id === extra.id)}
                 />
                 <div className="pacote-info">
-                  <h4>{extra.name} - R$ {extra.price.toFixed(2)}</h4>
+                  <h4>{extra.name}</h4>
                   {extra.ingredients && <p>{extra.ingredients}</p>}
                 </div>
               </label>

@@ -1,0 +1,799 @@
+/* ============================================
+   RESPONSIVIDADE COMPLETA
+   ============================================ */
+
+/* BASE: Mobile First (320px até 640px) */
+@media (max-width: 640px) {
+  /* ===== HEADER ===== */
+  .app-header {
+    padding: 1.2rem 0.8rem 1rem;
+  }
+
+  .header-kicker {
+    font-size: 0.7rem;
+    height: 32px;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .header-logo {
+    height: 28px;
+    max-width: 60px;
+  }
+
+  .app-header h1 {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .app-header p {
+    font-size: 0.8rem;
+  }
+
+  .header-tags {
+    margin-top: 0.6rem;
+    gap: 0.3rem;
+  }
+
+  .header-tags span {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .header-gallery {
+    margin-top: 0.7rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .header-gallery img {
+    height: 70px;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-container {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .progress-bar {
+    height: 3px;
+    margin-bottom: 0.3rem;
+  }
+
+  .progress-text {
+    font-size: 0.75rem;
+  }
+
+  /* ===== CONTENT ===== */
+  .content {
+    padding: 1rem 0.8rem;
+  }
+
+  /* ===== FORMS ===== */
+  .cliente-info-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .input-large {
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
+
+  /* ===== CARDS ===== */
+  .pacote-card {
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    border-radius: 12px;
+  }
+
+  .pacote-header {
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .pacote-radio {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pacote-name {
+    font-size: 1rem;
+  }
+
+  .pacote-price {
+    font-size: 0.85rem;
+  }
+
+  .pacote-preview {
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+    padding: 0.7rem;
+    justify-content: space-between;
+  }
+
+  .preview-icon {
+    font-size: 1.3rem;
+  }
+
+  .preview-count {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .pacote-expand-btn {
+    padding: 0.6rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* ===== SEÇÕES ===== */
+  .section h3 {
+    font-size: 0.95rem;
+    margin: 0.8rem 0 0.6rem 0;
+  }
+
+  .step-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .step-body {
+    padding: 0.8rem;
+    border-radius: 8px;
+  }
+
+  /* ===== DRINKS/OPTIONS ===== */
+  .opcoes-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .opcao-btn {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .bebida-categoria {
+    border-radius: 8px;
+  }
+
+  .categoria-header {
+    padding: 0.9rem;
+  }
+
+  .categoria-icon {
+    font-size: 1.3rem;
+  }
+
+  .categoria-name {
+    font-size: 0.95rem;
+  }
+
+  .categoria-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .categoria-opcoes {
+    padding: 0.9rem;
+    gap: 0.6rem;
+  }
+
+  .opcao-checkbox {
+    gap: 0.7rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .opcao-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ===== BEBIDAS CHIPS ===== */
+  .bebidas-preview {
+    padding: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .preview-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .bebidas-chips {
+    gap: 0.4rem;
+  }
+
+  .bebida-chip {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.6rem 0.35rem 0.8rem;
+    gap: 0.4rem;
+  }
+
+  .chip-close {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ===== BUTTONS ===== */
+  .footer-nav {
+    gap: 0.6rem;
+    padding: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.85rem;
+    min-height: 40px;
+    flex-basis: calc(50% - 0.3rem);
+  }
+
+  .btn-whatsapp {
+    flex-basis: 100%;
+    margin-top: 0.8rem;
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  /* ===== SUMMARY ===== */
+  .summary-card {
+    padding: 0.8rem;
+  }
+
+  .summary-card h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .summary-line,
+  .summary-total {
+    font-size: 0.8rem;
+    gap: 0.5rem;
+    margin: 0.3rem 0;
+  }
+
+  .summary-total strong {
+    font-size: 1rem;
+  }
+
+  /* ===== MANAGER SECTION ===== */
+  .manager-card {
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .manager-header {
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .manager-header h2 {
+    font-size: 0.9rem;
+  }
+
+  .manager-form {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .manager-toggle,
+  .manager-submit {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .manager-edit-row {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  /* ===== PDF ===== */
+  .pdf-header {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    padding: 1rem;
+  }
+
+  .pdf-header-brand h2 {
+    font-size: 1.2rem;
+  }
+
+  .pdf-eyebrow {
+    font-size: 0.65rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .pdf-header-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .pdf-header-package {
+    grid-column: 1 / -1;
+  }
+
+  .pdf-header-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .pdf-body {
+    padding: 1rem;
+  }
+
+  .pdf-info-section,
+  .pdf-two-columns,
+  .pdf-extras-grid,
+  .pdf-finance-strip {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .info-item {
+    padding: 0.6rem;
+  }
+
+  .info-label {
+    font-size: 0.6rem;
+  }
+
+  .info-value {
+    font-size: 0.8rem;
+  }
+
+  .pdf-table {
+    font-size: 0.7rem;
+  }
+
+  .pdf-table th,
+  .pdf-table td {
+    padding: 0.35rem;
+  }
+
+  .pdf-total-value {
+    font-size: 1.1rem;
+  }
+
+  .resumo-wrapper {
+    padding: 1rem;
+  }
+
+  .resumo-controls {
+    padding: 0.8rem;
+  }
+
+  .pdf-input-section {
+    gap: 0.6rem;
+  }
+
+  .pdf-input-group {
+    gap: 0.2rem;
+  }
+
+  .pdf-input-group label {
+    font-size: 0.7rem;
+  }
+
+  .pdf-input-group input,
+  .pdf-input-group select {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* TABLET: 641px até 1023px */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .app-header {
+    padding: 1.8rem 1.2rem 1.5rem;
+  }
+
+  .header-kicker {
+    font-size: 0.73rem;
+    height: 36px;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .header-logo {
+    height: 32px;
+    max-width: 70px;
+  }
+
+  .app-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .app-header p {
+    font-size: 0.88rem;
+  }
+
+  .header-tags {
+    margin-top: 0.8rem;
+    gap: 0.4rem;
+  }
+
+  .header-tags span {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .header-gallery {
+    margin-top: 0.8rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .header-gallery img {
+    height: 80px;
+  }
+
+  .progress-container {
+    padding: 0.7rem 1rem;
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+  }
+
+  .content {
+    padding: 1.2rem 1rem;
+  }
+
+  .cliente-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .input-large {
+    padding: 0.9rem;
+    font-size: 1.1rem;
+  }
+
+  .pacote-card {
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .pacote-name {
+    font-size: 1.08rem;
+  }
+
+  .opcoes-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+
+  .opcao-btn {
+    padding: 0.75rem 0.9rem;
+    font-size: 0.88rem;
+  }
+
+  .categoria-header {
+    padding: 1rem;
+  }
+
+  .categoria-name {
+    font-size: 1rem;
+  }
+
+  .categoria-opcoes {
+    padding: 1rem;
+    gap: 0.7rem;
+  }
+
+  .opcao-checkbox {
+    padding: 0.7rem 0.9rem;
+  }
+
+  .footer-nav {
+    gap: 0.8rem;
+    padding: 0.9rem;
+  }
+
+  .btn {
+    padding: 0.8rem 0.9rem;
+    font-size: 0.92rem;
+  }
+
+  .summary-card {
+    padding: 0.9rem;
+  }
+
+  .summary-line,
+  .summary-total {
+    font-size: 0.88rem;
+  }
+
+  .pdf-header {
+    grid-template-columns: 1fr auto auto;
+    gap: 0.7rem;
+    padding: 1.15rem;
+  }
+
+  .pdf-info-section,
+  .pdf-two-columns,
+  .pdf-finance-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pdf-extras-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pdf-total-value {
+    font-size: 1.2rem;
+  }
+
+  .resumo-wrapper {
+    padding: 1.1rem;
+  }
+}
+
+/* DESKTOP: 1024px+ */
+@media (min-width: 1024px) {
+  .app-header {
+    padding: 2.2rem 2rem 2rem;
+  }
+
+  .header-logo {
+    height: 40px;
+    max-width: 90px;
+  }
+
+  .app-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .app-header p {
+    font-size: 1rem;
+    max-width: 600px;
+  }
+
+  .header-gallery {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+
+  .header-gallery img {
+    height: 100px;
+  }
+
+  .content {
+    padding: 1.8rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .cliente-info-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .pacote-card {
+    padding: 1.8rem;
+    margin-bottom: 1.4rem;
+  }
+
+  .pacote-preview {
+    gap: 1.2rem;
+    margin-bottom: 1.4rem;
+    padding: 1.2rem;
+  }
+
+  .opcoes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .opcao-btn {
+    padding: 0.9rem 1.1rem;
+    font-size: 0.95rem;
+  }
+
+  .bebida-categoria {
+    border-radius: 14px;
+  }
+
+  .categoria-header {
+    padding: 1.4rem;
+  }
+
+  .categoria-opcoes {
+    padding: 1.4rem;
+    gap: 0.9rem;
+  }
+
+  .opcao-checkbox {
+    padding: 0.85rem 1.1rem;
+  }
+
+  .footer-nav {
+    gap: 1.2rem;
+    padding: 1.2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .btn {
+    padding: 1rem 1.2rem;
+    font-size: 1.05rem;
+  }
+
+  .summary-card {
+    padding: 1.2rem;
+  }
+
+  .summary-line,
+  .summary-total {
+    font-size: 0.98rem;
+    gap: 1.2rem;
+  }
+
+  .pdf-header {
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    padding: 1.4rem;
+  }
+
+  .pdf-header-package {
+    min-width: 200px;
+  }
+
+  .pdf-header-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .pdf-body {
+    padding: 1.5rem;
+  }
+
+  .pdf-info-section,
+  .pdf-two-columns,
+  .pdf-finance-strip {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .pdf-extras-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .resumo-wrapper {
+    padding: 1.5rem;
+  }
+
+  .pdf-input-section {
+    flex-direction: row;
+    gap: 1.2rem;
+  }
+
+  .pdf-input-group {
+    flex: 1;
+  }
+
+  .manager-form {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* LARGE DESKTOP: 1440px+ */
+@media (min-width: 1440px) {
+  .content {
+    padding: 2rem 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .app-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .pacote-card {
+    padding: 2rem;
+  }
+
+  .opcoes-grid {
+    gap: 1.2rem;
+  }
+
+  .footer-nav {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .manager-form {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .pdf-info-section {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ============================================
+   EXTRA AJUSTES PARA MELHOR UX
+   ============================================ */
+
+/* Evita zoom involuntário em inputs em mobile */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Melhora scroll em mobile */
+@media (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: rgba(211, 47, 47, 0.2);
+  }
+}
+
+/* Orientação landscape em mobile */
+@media (max-height: 500px) {
+  .app-header {
+    padding: 0.8rem 0.8rem 0.6rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .header-gallery {
+    display: none;
+  }
+
+  .header-tags {
+    margin-top: 0.4rem;
+  }
+
+  .content {
+    padding: 0.8rem;
+  }
+
+  .footer-nav {
+    padding: 0.6rem;
+  }
+
+  .btn {
+    padding: 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  body * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .footer-nav,
+  .manager-card,
+  .progress-container {
+    display: none !important;
+  }
+
+  #resumo {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .resumo-pdf-container {
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+}

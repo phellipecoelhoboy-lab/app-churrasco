@@ -18,7 +18,7 @@ const Resumo = ({
   const [data, setData] = useState(new Date().toISOString().split('T')[0]);
   const [horario, setHorario] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [pdfLayout, setPdfLayout] = useState('vibrante');
+  const pdfLayout = 'elegante';
 
   const todayISO = new Date().toISOString().split('T')[0];
   const WHATSAPP_NUMBER = '5562999394165';
@@ -39,13 +39,10 @@ const Resumo = ({
       total += churrasco.price * numPessoas;
     }
 
-    bebidas.forEach((beb) => {
-      total += getBebidaPrice(beb) * numPessoas;
-    });
-
-    extras.forEach((extra) => {
-      total += extra.price;
-    });
+    // Extras não possuem preço associado
+    // extras.forEach((extra) => {
+    //   total += extra.price;
+    // });
 
     return total;
   };
@@ -184,7 +181,7 @@ const Resumo = ({
             extras,
             totals: {
               churrasco: totalChurrascoValor,
-              bebidas: totalBebidasValor,
+              bebidas: 0,
               extras: totalExtrasValor,
               total: totalEventoValor,
             },
@@ -199,13 +196,7 @@ const Resumo = ({
       const dataFormatadaTexto = new Date(data).toLocaleDateString('pt-BR');
       const totalChurrasco = (churrasco.price * numPessoas).toFixed(2);
 
-      let totalBebidas = 0;
-      bebidas.forEach((beb) => {
-        totalBebidas += getBebidaPrice(beb) * numPessoas;
-      });
-      totalBebidas = totalBebidas.toFixed(2);
-
-      const totalExtras = extras.reduce((sum, extra) => sum + extra.price, 0).toFixed(2);
+      const totalExtras = (0).toFixed(2); // Extras não possuem custo
       const totalGeral = calcularTotal().toFixed(2);
 
       let mensagem = '🔥 *ORÇAMENTO DE CHURRASCO* 🍖\n\n';
@@ -246,16 +237,14 @@ const Resumo = ({
 
       mensagem += '\n🍻 *Bebidas Selecionadas:*\n';
       bebidas.forEach((beb) => {
-        mensagem += `• ${beb.categoryName ? `${beb.categoryName} - ` : ''}${beb.option} (R$ ${getBebidaPrice(beb).toFixed(2)})\n`;
+        mensagem += `• ${beb.categoryName ? `${beb.categoryName} - ` : ''}${beb.option}\n`;
       });
-      mensagem += `📊 Subtotal Bebidas: R$ ${totalBebidas}\n\n`;
 
       if (extras.length > 0) {
         mensagem += '✨ *SERVIÇOS ADICIONAIS:*\n';
         extras.forEach((extra) => {
-          mensagem += `• ${extra.name} - R$ ${extra.price.toFixed(2)}\n`;
+          mensagem += `• ${extra.name}\n`;
         });
-        mensagem += `📊 Subtotal Extras: R$ ${totalExtras}\n\n`;
       }
 
       mensagem += '━━━━━━━━━━━━━━━━━━━━━\n';
@@ -311,8 +300,8 @@ const Resumo = ({
   });
 
   const totalChurrascoValor = churrasco ? churrasco.price * numPessoas : 0;
-  const totalBebidasValor = bebidas.reduce((sum, beb) => sum + (getBebidaPrice(beb) * numPessoas), 0);
-  const totalExtrasValor = extras.reduce((sum, extra) => sum + extra.price, 0);
+  const totalBebidasValor = 0;
+  const totalExtrasValor = 0; // Extras não possuem custo
   const totalEventoValor = calcularTotal();
   const isElegantLayout = pdfLayout === 'elegante';
 
@@ -422,17 +411,13 @@ const Resumo = ({
                   {bebidas.map((beb, idx) => (
                     <tr key={`beb-${idx}`}>
                       <td>{`${beb.categoryName ? `${beb.categoryName} - ` : ''}${beb.option}`.toUpperCase()}</td>
-                      <td>R$ {getBebidaPrice(beb).toFixed(2)}</td>
-                      <td>{numPessoas}</td>
-                      <td>R$ {(getBebidaPrice(beb) * numPessoas).toFixed(2)}</td>
+                      <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic', letterSpacing: '2px', fontSize: '0.8rem' }}>INCLUSO</td>
                     </tr>
                   ))}
                   {extras.map((extra, idx) => (
                     <tr key={`extra-table-${idx}`}>
                       <td>{extra.name.toUpperCase()}</td>
-                      <td>R$ {extra.price.toFixed(2)}</td>
-                      <td>1</td>
-                      <td>R$ {extra.price.toFixed(2)}</td>
+                      <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic', letterSpacing: '2px', fontSize: '0.8rem' }}>INCLUSO</td>
                     </tr>
                   ))}
                 </tbody>
@@ -490,7 +475,7 @@ const Resumo = ({
                   {bebidas.length > 0 ? (
                     bebidas.map((beb, idx) => (
                       <div key={`beb-${idx}`} className="pdf-list-item">
-                        • {beb.categoryName ? `${beb.categoryName} - ` : ''}{beb.option} (R$ {getBebidaPrice(beb).toFixed(2)})
+                        • {beb.categoryName ? `${beb.categoryName} - ` : ''}{beb.option}
                       </div>
                     ))
                   ) : (
@@ -538,17 +523,13 @@ const Resumo = ({
                     {bebidas.map((beb, idx) => (
                       <tr key={`beb-${idx}`}>
                         <td>{beb.categoryName ? `${beb.categoryName} - ` : ''}{beb.option}</td>
-                        <td>R$ {getBebidaPrice(beb).toFixed(2)}</td>
-                        <td>{numPessoas}</td>
-                        <td>R$ {(getBebidaPrice(beb) * numPessoas).toFixed(2)}</td>
+                        <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>Incluso</td>
                       </tr>
                     ))}
                     {extras.map((extra, idx) => (
                       <tr key={`extra-table-${idx}`}>
                         <td>{extra.name}</td>
-                        <td>R$ {extra.price.toFixed(2)}</td>
-                        <td>1</td>
-                        <td>R$ {extra.price.toFixed(2)}</td>
+                        <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>Incluso</td>
                       </tr>
                     ))}
                   </tbody>
@@ -569,13 +550,6 @@ const Resumo = ({
       <div className="resumo-controls">
         <h3>📝 Detalhes do Evento</h3>
         <div className="pdf-input-section">
-          <div className="pdf-input-group">
-            <label>🎨 Layout do PDF:</label>
-            <select value={pdfLayout} onChange={(e) => setPdfLayout(e.target.value)}>
-              <option value="vibrante">Vibrante (atual)</option>
-              <option value="elegante">Elegante (novo)</option>
-            </select>
-          </div>
           <div className="pdf-input-group">
             <label>📅 Data:</label>
             <input type="date" value={data} min={todayISO} onChange={(e) => setData(e.target.value)} required />

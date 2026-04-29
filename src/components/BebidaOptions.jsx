@@ -39,7 +39,7 @@ const BebidaOptions = ({ setBebidas, bebidas, beverages }) => {
           <div className="bebidas-chips">
             {bebidas.map(bebida => (
               <div key={bebida.id} className="bebida-chip">
-                {bebida.option} <span className="bebida-chip-price">R$ {Number(bebida.price || 0).toFixed(2)}</span>
+                {bebida.option}
                 <button 
                   className="chip-close"
                   onClick={() => handleToggleBebida({ id: bebida.categoryId, name: bebida.categoryName }, { id: bebida.optionId, name: bebida.option, price: bebida.price })}
@@ -88,7 +88,6 @@ const BebidaOptions = ({ setBebidas, bebidas, beverages }) => {
                           onChange={() => handleToggleBebida(drink, option)}
                         />
                         <span className="opcao-text">{option.name}</span>
-                        <span className="opcao-price">R$ {Number(option.price || 0).toFixed(2)}</span>
                       </label>
                     );
                   })}

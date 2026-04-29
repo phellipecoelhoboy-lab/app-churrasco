@@ -13,6 +13,7 @@ import {
   outros,
 } from './constants';
 import './AppClean.css';
+import './responsive.css';
 
 const normalizeBeverageCatalog = (items) => items.map((item, index) => ({
   ...item,
@@ -46,34 +47,69 @@ function App() {
   );
   const [showManager, setShowManager] = useState(false);
 
-  const [churrascoCatalog, setChurrascoCatalog] = useState(
-    initialChurrascoPackages.map((item, index) => ({
+  const [churrascoCatalog, setChurrascoCatalog] = useState(() => {
+    const saved = localStorage.getItem('churrascoCatalog');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error('Erro ao ler localStorage', e); }
+    }
+    return initialChurrascoPackages.map((item, index) => ({
       ...item,
       id: `churrasco-${index + 1}`,
-    }))
-  );
+    }));
+  });
 
-  const [beverageCatalog, setBeverageCatalog] = useState(
-    initialBeverageCatalog
-  );
+  const [beverageCatalog, setBeverageCatalog] = useState(() => {
+    const saved = localStorage.getItem('beverageCatalog');
+    if (saved) {
+      try { 
+        const parsed = JSON.parse(saved); 
+        // Force cleanup of old cached beverages with prices
+        const hasPrices = parsed.some(c => Number(c.price) > 0 || (c.options && c.options.some(o => Number(o.price) > 0)));
+        if (hasPrices) {
+          console.log('🔄 Limpando cache de Bebidas (removendo preços velhos)');
+          return initialBeverageCatalog;
+        }
+        return parsed; 
+      } catch (e) { console.error('Erro ao ler localStorage', e); }
+    }
+    return initialBeverageCatalog;
+  });
 
-  const [extrasCatalog, setExtrasCatalog] = useState([
-    ...caipis.map((item, index) => ({
-      ...item,
-      id: `extra-caipi-${index + 1}`,
-      category: extraCategories[0],
-    })),
-    ...classicDrinks.map((item, index) => ({
-      ...item,
-      id: `extra-drink-${index + 1}`,
-      category: extraCategories[1],
-    })),
-    ...outros.map((item, index) => ({
-      ...item,
-      id: `extra-servico-${index + 1}`,
-      category: extraCategories[2],
-    })),
-  ]);
+  const [extrasCatalog, setExtrasCatalog] = useState(() => {
+    const saved = localStorage.getItem('extrasCatalog');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error('Erro ao ler localStorage', e); }
+    }
+    return [
+      ...caipis.map((item, index) => ({
+        ...item,
+        id: `extra-caipi-${index + 1}`,
+        category: extraCategories[0],
+      })),
+      ...classicDrinks.map((item, index) => ({
+        ...item,
+        id: `extra-drink-${index + 1}`,
+        category: extraCategories[1],
+      })),
+      ...outros.map((item, index) => ({
+        ...item,
+        id: `extra-servico-${index + 1}`,
+        category: extraCategories[2],
+      })),
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('churrascoCatalog', JSON.stringify(churrascoCatalog));
+  }, [churrascoCatalog]);
+
+  useEffect(() => {
+    localStorage.setItem('beverageCatalog', JSON.stringify(beverageCatalog));
+  }, [beverageCatalog]);
+
+  useEffect(() => {
+    localStorage.setItem('extrasCatalog', JSON.stringify(extrasCatalog));
+  }, [extrasCatalog]);
 
   const [newProduct, setNewProduct] = useState({
     type: 'churrasco',
@@ -127,11 +163,8 @@ function App() {
   const totalSteps = 5;
 
   const totalChurrasco = churrasco ? churrasco.price * numPessoas : 0;
-  const totalBebidas = bebidas.reduce((sum, bebidaSelecionada) => {
-    const bebidaPreco = Number(bebidaSelecionada.price ?? 0);
-    return sum + (bebidaPreco * numPessoas);
-  }, 0);
-  const totalExtras = extras.reduce((sum, extra) => sum + extra.price, 0);
+  const totalBebidas = 0; // Bebidas não possuem custo associado no evento
+  const totalExtras = 0; // Extras não possuem custo associado
   const totalGeral = totalChurrasco + totalBebidas + totalExtras;
 
   const getWhatsappDigits = (value) => (value || '').replace(/\D/g, '');
@@ -167,8 +200,9 @@ function App() {
   const handleAddProduct = (event) => {
     event.preventDefault();
 
-    const price = Number(newProduct.price);
-    if (!newProduct.name.trim() || Number.isNaN(price) || price <= 0) {
+    const price = newProduct.type.includes('bebida') ? 0 : Number(newProduct.price);
+    if (!newProduct.name.trim() || (!newProduct.type.includes('bebida') && (Number.isNaN(price) || price <= 0))) {
+      alert('⚠️ Preencha o nome e um preço válido (maior que zero) para incluir.');
       return;
     }
 
@@ -243,6 +277,10 @@ function App() {
   };
 
   const handleDeleteProduct = (type, itemId) => {
+    if (!window.confirm('🚨 Tem certeza que deseja excluir este produto permanentemente?')) {
+      return;
+    }
+
     if (type === 'churrasco') {
       setChurrascoCatalog((prev) => {
         const deleted = prev.find((item) => item.id === itemId);
@@ -316,8 +354,13 @@ function App() {
   const saveEditProduct = () => {
     if (!editingProduct) return;
 
-    const price = Number(editingProduct.price);
-    if (!editingProduct.name.trim() || Number.isNaN(price) || price <= 0) {
+    const price = editingProduct.type.includes('bebida') ? 0 : Number(editingProduct.price);
+    if (!editingProduct.name.trim() || (!editingProduct.type.includes('bebida') && (Number.isNaN(price) || price <= 0))) {
+      alert('⚠️ Preencha um nome e um preço válido (maior que 0) para salvar!');
+      return;
+    }
+
+    if (!window.confirm('Salvar as alterações deste produto?')) {
       return;
     }
 
@@ -628,15 +671,17 @@ function App() {
                     placeholder="Nome do produto"
                   />
 
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    name="price"
-                    value={newProduct.price}
-                    onChange={handleNewProductChange}
-                    placeholder="Preço"
-                  />
+                  {!newProduct.type.includes('bebida') && (
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      name="price"
+                      value={newProduct.price}
+                      onChange={handleNewProductChange}
+                      placeholder="Preço"
+                    />
+                  )}
 
                   {newProduct.type === 'bebida-opcao' && (
                     <select
@@ -681,13 +726,15 @@ function App() {
                       value={editingProduct.name}
                       onChange={(event) => setEditingProduct((prev) => ({ ...prev, name: event.target.value }))}
                     />
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={editingProduct.price}
-                      onChange={(event) => setEditingProduct((prev) => ({ ...prev, price: event.target.value }))}
-                    />
+                    {!editingProduct.type.includes('bebida') && (
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={editingProduct.price}
+                        onChange={(event) => setEditingProduct((prev) => ({ ...prev, price: event.target.value }))}
+                      />
+                    )}
                     {editingProduct.type === 'bebida-opcao' && (
                       <select
                         value={editingProduct.parentCategoryId}
@@ -742,7 +789,7 @@ function App() {
                     {beverageCatalog.map((category) => (
                       <div key={category.id} className="manager-beverage-group">
                         <div className="manager-item-row manager-beverage-category-row">
-                          <span>{category.icon} {category.name} — R$ {category.price.toFixed(2)} (base)</span>
+                          <span>{category.icon} {category.name}</span>
                           <div className="manager-item-actions">
                             <button type="button" onClick={() => startEditProduct('bebida-categoria', category)}>Editar</button>
                             <button type="button" onClick={() => handleDeleteProduct('bebida-categoria', category.id)}>Excluir</button>
@@ -752,7 +799,7 @@ function App() {
                         <div className="manager-beverage-options">
                           {(category.options ?? []).map((option) => (
                             <div key={option.id} className="manager-item-row manager-beverage-option-row">
-                              <span>{option.name} — R$ {option.price.toFixed(2)}</span>
+                              <span>{option.name}</span>
                               <div className="manager-item-actions">
                                 <button type="button" onClick={() => startEditProduct('bebida-opcao', option)}>Editar</button>
                                 <button type="button" onClick={() => handleDeleteProduct('bebida-opcao', option.id)}>Excluir</button>

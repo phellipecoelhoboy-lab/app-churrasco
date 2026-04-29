@@ -65,71 +65,71 @@ export const churrascoPackages = [
 export const beverages = [
   { 
     name: 'Refrigerante',
-    price: 8.00,
+    price: 0,
     icon: '🥤',
     options: [
-      { name: 'Coca-Cola', price: 8.00 },
-      { name: 'Coca-Cola Zero', price: 8.50 },
-      { name: 'Pepsi', price: 7.50 },
-      { name: 'Guaraná', price: 7.50 },
-      { name: 'Fanta Laranja', price: 7.50 },
-      { name: 'Fanta Uva', price: 7.50 },
-      { name: 'Sprite', price: 7.50 },
+      { name: 'Coca-Cola', price: 0 },
+      { name: 'Coca-Cola Zero', price: 0 },
+      { name: 'Pepsi', price: 0 },
+      { name: 'Guaraná', price: 0 },
+      { name: 'Fanta Laranja', price: 0 },
+      { name: 'Fanta Uva', price: 0 },
+      { name: 'Sprite', price: 0 },
     ]
   },
   { 
     name: 'Cerveja',
-    price: 12.00,
+    price: 0,
     icon: '🍺',
     options: [
-      { name: 'Skol', price: 12.00 },
-      { name: 'Brahma', price: 12.00 },
-      { name: 'Heineken', price: 15.00 },
-      { name: 'Antártica', price: 12.00 },
-      { name: 'Itaipava', price: 11.00 },
-      { name: 'Budweiser', price: 15.00 },
+      { name: 'Skol', price: 0 },
+      { name: 'Brahma', price: 0 },
+      { name: 'Heineken', price: 0 },
+      { name: 'Antártica', price: 0 },
+      { name: 'Itaipava', price: 0 },
+      { name: 'Budweiser', price: 0 },
     ]
   },
   { 
     name: 'Suco Natural',
-    price: 10.00,
+    price: 0,
     icon: '🧃',
     options: [
-      { name: 'Laranja', price: 10.00 },
-      { name: 'Morango', price: 11.00 },
-      { name: 'Maracujá', price: 11.00 },
-      { name: 'Melancia', price: 11.00 },
-      { name: 'Melão', price: 11.00 },
-      { name: 'Goiaba', price: 11.00 },
+      { name: 'Laranja', price: 0 },
+      { name: 'Morango', price: 0 },
+      { name: 'Maracujá', price: 0 },
+      { name: 'Melancia', price: 0 },
+      { name: 'Melão', price: 0 },
+      { name: 'Goiaba', price: 0 },
     ]
   },
   { 
     name: 'Vinho',
-    price: 15.00,
+    price: 0,
     icon: '🍷',
     options: [
-      { name: 'Tinto', price: 15.00 },
-      { name: 'Branco', price: 15.00 },
-      { name: 'Rosé', price: 16.00 },
+      { name: 'Tinto', price: 0 },
+      { name: 'Branco', price: 0 },
+      { name: 'Rosé', price: 0 },
     ]
   },
   { 
     name: 'Água Mineral',
-    price: 3.00,
+    price: 0,
     icon: '💧',
     options: [
-      { name: 'Com Gás', price: 3.50 },
-      { name: 'Sem Gás', price: 3.00 },
+      { name: 'Com Gás', price: 0 },
+      { name: 'Sem Gás', price: 0 },
     ]
   },
   { 
     name: 'Energético',
-    price: 18.00,
+    price: 0,
     icon: '⚡',
     options: [
-      { name: 'Red Bull', price: 18.00 },
-      { name: 'Monster', price: 17.00 },
-      { name: 'Guaraná Antarctica', price: 16.00 },
+      { name: 'Red Bull', price: 0 },
+      { name: 'Monster', price: 0 },
+      { name: 'Guaraná Antarctica', price: 0 },
     ]
   },
 ];
@@ -153,22 +153,22 @@ export const openBarPackages = [
 ];
 
 export const caipis = [
-  { name: 'Morango', ingredients: 'Açucar de baunilha, Espuma artesanal, Canela', price: 10.00 },
-  { name: 'Limão', ingredients: 'Capim-limão, Espuma artesanal', price: 10.00 },
-  { name: 'Melancia', ingredients: 'Açucar de baunilha, Espuma artesanal, Capim-limão', price: 10.00 },
-  { name: 'Abacaxi', ingredients: 'Açucar de baunilha, Hortelã', price: 10.00 },
-  { name: 'Maracujá', ingredients: 'Açucar de pimenta vermelha, Manjericão', price: 10.00 },
+  { name: 'Morango', ingredients: 'Açucar de baunilha, Espuma artesanal, Canela' },
+  { name: 'Limão', ingredients: 'Capim-limão, Espuma artesanal' },
+  { name: 'Melancia', ingredients: 'Açucar de baunilha, Espuma artesanal, Capim-limão' },
+  { name: 'Abacaxi', ingredients: 'Açucar de baunilha, Hortelã' },
+  { name: 'Maracujá', ingredients: 'Açucar de pimenta vermelha, Manjericão' },
 ];
 
 export const classicDrinks = [
-  { name: 'Mojito', ingredients: 'Rum, Limão, Hortelã, Água com gás', price: 15.00 },
-  { name: 'Sex on the Beach', ingredients: 'Vodka, Suco de laranja, Syrup pêssego, Grenadine', price: 15.00 },
-  { name: 'Lagoa Azul', ingredients: 'Vodka, Syrup Blue Curacau, Sprite', price: 15.00 },
-  { name: 'Apple Martinni', ingredients: 'Vodka, Syrup maçã verde, Shweppes Citrus', price: 15.00 },
+  { name: 'Mojito', ingredients: 'Rum, Limão, Hortelã, Água com gás' },
+  { name: 'Sex on the Beach', ingredients: 'Vodka, Suco de laranja, Syrup pêssego, Grenadine' },
+  { name: 'Lagoa Azul', ingredients: 'Vodka, Syrup Blue Curacau, Sprite' },
+  { name: 'Apple Martinni', ingredients: 'Vodka, Syrup maçã verde, Shweppes Citrus' },
 ];
 
 export const outros = [
-  { name: 'Garçom', price: 170.00 },
-  { name: 'Copeiro', price: 120.00 },
-  { name: 'Fotografo', price: 350.00 },
+  { name: 'Garçom' },
+  { name: 'Copeiro' },
+  { name: 'Fotografo' },
 ];

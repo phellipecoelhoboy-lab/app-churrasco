@@ -552,50 +552,34 @@ body {
 
 /* PACOTE CARDS */
 .pacote-card {
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 1.2rem;
-  margin-bottom: 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
 
-.pacote-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
 .pacote-card:hover {
-  border-color: var(--secondary);
-  box-shadow: 0 6px 16px rgba(255, 111, 0, 0.15);
+  border-color: #d1d5db;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
   transform: translateY(-2px);
-}
-
-.pacote-card:hover::before {
-  transform: scaleX(1);
 }
 
 /* HEADER DO CARD */
 .pacote-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
-  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  gap: 1rem;
 }
 
 .pacote-radio {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
   accent-color: var(--primary);
   flex-shrink: 0;
@@ -606,96 +590,97 @@ body {
   align-items: center;
   cursor: pointer;
   width: 100%;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .pacote-info-main {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
   flex: 1;
 }
 
 .pacote-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--primary);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #111827;
   display: block;
 }
 
 .pacote-price {
   font-size: 0.95rem;
-  color: var(--secondary);
-  font-weight: 600;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 /* PREVIEW DOS ITENS */
 .pacote-preview {
   display: flex;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
   justify-content: space-around;
-  padding: 0.8rem;
-  background: rgba(255, 111, 0, 0.05);
-  border-radius: 8px;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
 }
 
 .preview-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   flex: 1;
   text-align: center;
 }
 
 .preview-icon {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   display: block;
 }
 
 .preview-count {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--primary);
-  background: white;
+  color: #374151;
+  background: #ffffff;
   padding: 0.3rem 0.6rem;
-  border-radius: 4px;
+  border-radius: 6px;
   display: inline-block;
+  border: 1px solid #e5e7eb;
 }
 
 /* BOTÃO EXPANDIR */
 .pacote-expand-btn {
   width: 100%;
-  padding: 0.7rem;
-  background: var(--light-bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  padding: 0.8rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--secondary);
+  font-weight: 500;
+  color: #4b5563;
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .pacote-expand-btn:hover {
-  background: var(--secondary);
-  color: white;
-  border-color: var(--secondary);
+  background: #f9fafb;
+  color: #111827;
 }
 
 /* DETALHES EXPANDIDO */
 .pacote-detalhes {
-  padding-top: 0.8rem;
-  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
   animation: slideDown 0.3s ease;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
@@ -704,45 +689,46 @@ body {
 }
 
 .pacote-detalhes .detalhes-secao {
-  margin: 1rem 0;
+  margin: 1.2rem 0;
 }
 
 .pacote-detalhes h4 {
-  font-size: 0.95rem;
-  color: var(--primary);
-  margin-bottom: 0.6rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .pacote-detalhes .item-tag {
-  background: linear-gradient(135deg, rgba(211, 47, 47, 0.1), rgba(255, 111, 0, 0.1));
-  border-left: 3px solid var(--primary);
-  padding: 0.5rem 0.8rem;
-  margin-bottom: 0.4rem;
-  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
   font-size: 0.9rem;
-  color: var(--text);
+  color: #374151;
   font-weight: 500;
 }
 
 /* ESTADO SELECIONADO */
 .pacote-selected {
-  background: linear-gradient(135deg, #fff9f0, #ffe8d6);
-  border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.15);
-  position: relative;
+  border: 2px solid var(--primary);
+  background: #ffffff;
+  box-shadow: 0 12px 35px rgba(211, 47, 47, 0.08);
 }
 
 .pacote-selected::after {
   content: '✓';
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
+  top: 18px;
+  right: 18px;
+  width: 28px;
+  height: 28px;
   background: var(--primary);
   color: white;
   border-radius: 50%;
@@ -750,8 +736,8 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 1.2rem;
-  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.2);
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2);
 }
 
 /* ITEMS LIST */
@@ -759,83 +745,84 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
-  margin-top: 0.6rem;
+  margin-top: 0.8rem;
 }
 
 .items-list span {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
 }
 
 /* BEBIDAS - OPÇÕES */
 .bebida-opcoes {
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  padding-top: 1.2rem;
+  border-top: 1px solid #f3f4f6;
   animation: slideDown 0.3s ease;
 }
 
 .bebida-label {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--primary);
-  margin-bottom: 0.8rem;
+  color: #374151;
+  margin-bottom: 1rem;
   display: block;
 }
 
 .opcoes-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  gap: 0.8rem;
 }
 
 .opcao-btn {
-  padding: 0.7rem 0.8rem;
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text);
+  padding: 0.8rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4b5563;
   cursor: pointer;
   transition: all 0.2s;
-  position: relative;
   text-align: left;
 }
 
 .opcao-btn:hover {
-  border-color: var(--secondary);
-  background: rgba(255, 111, 0, 0.05);
+  border-color: #d1d5db;
+  background: #f9fafb;
 }
 
 .opcao-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
 .opcao-selected {
-  background: linear-gradient(135deg, rgba(211, 47, 47, 0.1), rgba(255, 111, 0, 0.1));
+  background: #fdf2f2;
   border-color: var(--primary);
-  font-weight: 700;
+  color: var(--primary);
+  font-weight: 600;
 }
 
 /* BEBIDAS - MÚLTIPLA SELEÇÃO */
 .bebidas-preview {
-  background: linear-gradient(135deg, rgba(37, 211, 102, 0.1), rgba(76, 175, 80, 0.1));
-  border: 2px solid #4caf50;
-  border-radius: 10px;
-  padding: 1rem;
+  background: #fdfdfd;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.2rem;
   margin-bottom: 1.5rem;
 }
 
 .preview-title {
   font-size: 0.95rem;
-  font-weight: 700;
-  font-family: var(--font-elegant);
-  color: #2e7d32;
-  margin-bottom: 0.8rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: #374151;
+  margin-bottom: 1rem;
   display: block;
 }
 
@@ -846,63 +833,72 @@ body {
 }
 
 .bebida-chip {
-  background: white;
-  border: 1px solid #4caf50;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   border-radius: 20px;
-  padding: 0.5rem 0.9rem;
+  padding: 0.4rem 0.8rem 0.4rem 1rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #2e7d32;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .bebida-chip-price {
   font-size: 0.78rem;
-  color: #666;
-  font-weight: 700;
+  color: #9ca3af;
+  font-weight: 600;
 }
 
 .chip-close {
-  background: none;
+  background: #f3f4f6;
   border: none;
-  color: #d32f2f;
-  font-size: 1.2rem;
+  color: #6b7280;
+  font-size: 1rem;
   cursor: pointer;
   padding: 0;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s;
+  border-radius: 50%;
+  transition: all 0.2s;
 }
 
 .chip-close:hover {
-  transform: scale(1.2);
+  background: #fee2e2;
+  color: #ef4444;
 }
 
 /* CATEGORIAS */
 .bebidas-categorias {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .bebida-categoria {
-  border-radius: 10px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s;
   overflow: hidden;
-  border: 2px solid var(--border);
-  transition: all 0.2s;
+}
+
+.bebida-categoria:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
 }
 
 .categoria-header {
   width: 100%;
-  padding: 1rem;
-  background: white;
+  padding: 1.2rem;
+  background: transparent;
   border: none;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid transparent;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -912,72 +908,77 @@ body {
 }
 
 .categoria-header:hover {
-  background: rgba(255, 111, 0, 0.05);
-  border-bottom-color: var(--secondary);
+  background: #fcfcfc;
 }
 
 .categoria-info {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 1rem;
   flex: 1;
   text-align: left;
 }
 
 .categoria-icon {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
 }
 
 .categoria-name {
-  font-size: 1rem;
-  color: var(--primary);
-  font-weight: 700;
+  font-size: 1.05rem;
+  color: #111827;
+  font-weight: 600;
 }
 
 .categoria-badge {
-  background: var(--primary);
-  color: white;
+  background: #e5e7eb;
+  color: #374151;
   border-radius: 12px;
   padding: 0.2rem 0.6rem;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-left: 0.5rem;
 }
 
 .categoria-arrow {
-  font-size: 0.9rem;
-  color: var(--secondary);
+  font-size: 0.85rem;
+  color: #9ca3af;
   transition: transform 0.2s;
 }
 
 .categoria-header.has-selected {
-  background: linear-gradient(135deg, rgba(211, 47, 47, 0.05), rgba(255, 111, 0, 0.05));
-  border-bottom-color: var(--secondary);
+  background: #fdfdfd;
+}
+.categoria-header.has-selected .categoria-badge {
+  background: var(--primary);
+  color: #ffffff;
 }
 
 /* OPÇÕES DA CATEGORIA */
 .categoria-opcoes {
-  padding: 1rem;
-  background: white;
+  padding: 1.2rem;
+  background: #fdfdfd;
+  border-top: 1px solid #f3f4f6;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.8rem;
   animation: slideDown 0.3s ease;
 }
 
 .opcao-checkbox {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.7rem 0.8rem;
-  border-radius: 6px;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
+  border: 1px solid transparent;
 }
 
 .opcao-checkbox:hover {
-  background: rgba(255, 111, 0, 0.05);
+  background: #f9fafb;
+  border-color: #f3f4f6;
 }
 
 .opcao-checkbox input[type="checkbox"] {
@@ -988,8 +989,10 @@ body {
 }
 
 .opcao-checkbox.selected {
-  background: linear-gradient(135deg, rgba(211, 47, 47, 0.1), rgba(255, 111, 0, 0.1));
-  font-weight: 700;
+  background: #ffffff;
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .opcao-text {
@@ -997,9 +1000,9 @@ body {
 }
 
 .opcao-price {
-  font-size: 0.82rem;
-  color: var(--secondary);
-  font-weight: 700;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 /* FOOTER NAVIGATION */
