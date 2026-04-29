@@ -979,12 +979,8 @@ function App() {
               <p className="summary-line"><span>WhatsApp</span><strong>{clienteWhatsapp || 'Não informado'}</strong></p>
               <p className="summary-line"><span>Pessoas</span><strong>{numPessoas || 0}</strong></p>
               <p className="summary-line"><span>Pacote</span><strong>{churrasco ? churrasco.name : 'Não selecionado'}</strong></p>
-              <p className="summary-line"><span>Itens de bebidas</span><strong>{bebidas.length}</strong></p>
-              <p className="summary-line"><span>Extras</span><strong>{extras.length}</strong></p>
               <hr className="summary-divider" />
               <p className="summary-line"><span>Churrasco</span><strong>R$ {totalChurrasco.toFixed(2)}</strong></p>
-              <p className="summary-line"><span>Bebidas</span><strong>R$ {totalBebidas.toFixed(2)}</strong></p>
-              <p className="summary-line"><span>Extras</span><strong>R$ {totalExtras.toFixed(2)}</strong></p>
               <p className="summary-total"><span>Total</span><strong>R$ {totalGeral.toFixed(2)}</strong></p>
             </div>
           </aside>
