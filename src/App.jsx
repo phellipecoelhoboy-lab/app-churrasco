@@ -5,6 +5,7 @@ import ExtrasOptions from './components/ExtrasOptions';
 import Resumo from './components/Resumo';
 import CarnesSelector from './components/CarnesSelector';
 import AcompanhamentosSelector from './components/AcompanhamentosSelector';
+import AdminPanel from './components/AdminPanel';
 import {
   churrascoPackages as initialChurrascoPackages,
   beverages as initialBeverages,
@@ -45,7 +46,6 @@ function App() {
   const [isAdminMode, setIsAdminMode] = useState(
     () => sessionStorage.getItem(ADMIN_SESSION_KEY) === '1'
   );
-  const [showManager, setShowManager] = useState(false);
 
   const [churrascoCatalog, setChurrascoCatalog] = useState(() => {
     const saved = localStorage.getItem('churrascoCatalog');
@@ -111,16 +111,6 @@ function App() {
     localStorage.setItem('extrasCatalog', JSON.stringify(extrasCatalog));
   }, [extrasCatalog]);
 
-  const [newProduct, setNewProduct] = useState({
-    type: 'churrasco',
-    name: '',
-    price: '',
-    category: extraCategories[0],
-    ingredients: '',
-    beverageCategoryId: getDefaultBeverageCategoryId(initialBeverageCatalog),
-  });
-  const [editingProduct, setEditingProduct] = useState(null);
-
   useEffect(() => {
     const hasAdminParam = new URLSearchParams(window.location.search).get('admin') === '1';
 
@@ -181,329 +171,6 @@ function App() {
 
   const isClienteInfoValid =
     clienteNome.trim().length >= 2 && getWhatsappDigits(clienteWhatsapp).length >= 10;
-
-  const handleNewProductChange = (event) => {
-    const { name, value } = event.target;
-    setNewProduct((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === 'type'
-        ? {
-            category: value === 'extra' ? prev.category : extraCategories[0],
-            ingredients: value === 'extra' ? prev.ingredients : '',
-            beverageCategoryId: value === 'bebida-opcao' ? prev.beverageCategoryId || getDefaultBeverageCategoryId(beverageCatalog) : prev.beverageCategoryId,
-          }
-        : {}),
-    }));
-  };
-
-  const handleAddProduct = (event) => {
-    event.preventDefault();
-
-    const price = newProduct.type.includes('bebida') ? 0 : Number(newProduct.price);
-    if (!newProduct.name.trim() || (!newProduct.type.includes('bebida') && (Number.isNaN(price) || price <= 0))) {
-      alert('⚠️ Preencha o nome e um preço válido (maior que zero) para incluir.');
-      return;
-    }
-
-    const baseId = `${newProduct.type}-${Date.now()}`;
-
-    if (newProduct.type === 'churrasco') {
-      const newItem = {
-        id: baseId,
-        name: newProduct.name.trim(),
-        price,
-        meats: [],
-        sideDishes: [],
-        drinks: [],
-      };
-      setChurrascoCatalog((prev) => [...prev, newItem]);
-    }
-
-    if (newProduct.type === 'bebida-categoria') {
-      const newItem = {
-        id: baseId,
-        name: newProduct.name.trim(),
-        price,
-        icon: '🍹',
-        options: [],
-      };
-      setBeverageCatalog((prev) => [...prev, newItem]);
-    }
-
-    if (newProduct.type === 'bebida-opcao') {
-      setBeverageCatalog((prev) => {
-        const categoryId = newProduct.beverageCategoryId || prev[0]?.id;
-        if (!categoryId) return prev;
-
-        const optionId = `${baseId}-opcao`;
-
-        return prev.map((item) => {
-          if (item.id !== categoryId) return item;
-
-          return {
-            ...item,
-            options: [
-              ...(item.options ?? []),
-              {
-                id: optionId,
-                name: newProduct.name.trim(),
-                price,
-              },
-            ],
-          };
-        });
-      });
-    }
-
-    if (newProduct.type === 'extra') {
-      const newItem = {
-        id: baseId,
-        name: newProduct.name.trim(),
-        price,
-        category: newProduct.category,
-        ingredients: newProduct.ingredients.trim(),
-      };
-      setExtrasCatalog((prev) => [...prev, newItem]);
-    }
-
-    setNewProduct((prev) => ({
-      ...prev,
-      name: '',
-      price: '',
-      ingredients: '',
-      beverageCategoryId: getDefaultBeverageCategoryId(beverageCatalog),
-    }));
-  };
-
-  const handleDeleteProduct = (type, itemId) => {
-    if (!window.confirm('🚨 Tem certeza que deseja excluir este produto permanentemente?')) {
-      return;
-    }
-
-    if (type === 'churrasco') {
-      setChurrascoCatalog((prev) => {
-        const deleted = prev.find((item) => item.id === itemId);
-        if (deleted && churrasco?.id === deleted.id) {
-          setChurrasco(null);
-        }
-        return prev.filter((item) => item.id !== itemId);
-      });
-    }
-
-    if (type === 'bebida-categoria') {
-      setBeverageCatalog((prev) => {
-        const deleted = prev.find((item) => item.id === itemId);
-        if (deleted) {
-          setBebidas((current) => current.filter((item) => item.categoryId !== deleted.id));
-        }
-        return prev.filter((item) => item.id !== itemId);
-      });
-    }
-
-    if (type === 'bebida-opcao') {
-      setBebidas((current) => current.filter((selected) => selected.optionId !== itemId));
-
-      setBeverageCatalog((prev) =>
-        prev.map((item) => ({
-          ...item,
-          options: (item.options ?? []).filter((option) => option.id !== itemId),
-        }))
-      );
-    }
-
-    if (type === 'extra') {
-      setExtrasCatalog((prev) => {
-        const deleted = prev.find((item) => item.id === itemId);
-        if (deleted) {
-          setExtras((current) => current.filter((item) => item.id !== deleted.id));
-        }
-        return prev.filter((item) => item.id !== itemId);
-      });
-    }
-  };
-
-  const startEditProduct = (type, item) => {
-    if (type === 'bebida-opcao') {
-      const parentCategory = beverageCatalog.find((category) =>
-        (category.options ?? []).some((option) => option.id === item.id)
-      );
-
-      setEditingProduct({
-        type,
-        id: item.id,
-        parentCategoryId: parentCategory?.id ?? '',
-        originalName: item.name,
-        name: item.name,
-        price: item.price,
-      });
-      return;
-    }
-
-    setEditingProduct({
-      type,
-      id: item.id,
-      originalName: item.name,
-      name: item.name,
-      price: item.price,
-      category: item.category ?? extraCategories[0],
-      ingredients: item.ingredients ?? '',
-    });
-  };
-
-  const saveEditProduct = () => {
-    if (!editingProduct) return;
-
-    const price = editingProduct.type.includes('bebida') ? 0 : Number(editingProduct.price);
-    if (!editingProduct.name.trim() || (!editingProduct.type.includes('bebida') && (Number.isNaN(price) || price <= 0))) {
-      alert('⚠️ Preencha um nome e um preço válido (maior que 0) para salvar!');
-      return;
-    }
-
-    if (!window.confirm('Salvar as alterações deste produto?')) {
-      return;
-    }
-
-    if (editingProduct.type === 'churrasco') {
-      setChurrascoCatalog((prev) =>
-        prev.map((item) =>
-          item.id === editingProduct.id
-            ? { ...item, name: editingProduct.name.trim(), price }
-            : item
-        )
-      );
-      setChurrasco((current) =>
-        current?.id === editingProduct.id
-          ? { ...current, name: editingProduct.name.trim(), price }
-          : current
-      );
-    }
-
-    if (editingProduct.type === 'bebida-categoria') {
-      setBeverageCatalog((prev) =>
-        prev.map((item) => {
-          if (item.id !== editingProduct.id) return item;
-
-          return {
-            ...item,
-            name: editingProduct.name.trim(),
-            price,
-          };
-        })
-      );
-
-      setBebidas((current) =>
-        current.map((item) =>
-          item.categoryId === editingProduct.id
-            ? {
-                ...item,
-                categoryName: editingProduct.name.trim(),
-              }
-            : item
-        )
-      );
-    }
-
-    if (editingProduct.type === 'bebida-opcao') {
-      const updatedName = editingProduct.name.trim();
-      const targetCategoryId = editingProduct.parentCategoryId || '';
-
-      setBeverageCatalog((prev) => {
-        const previousCategoryId = prev.find((category) =>
-          (category.options ?? []).some((option) => option.id === editingProduct.id)
-        )?.id;
-
-        return prev.map((category) => {
-          const isPreviousCategory = category.id === previousCategoryId;
-          const isTargetCategory = category.id === targetCategoryId;
-          const existingOption = (category.options ?? []).find((option) => option.id === editingProduct.id);
-
-          if (isTargetCategory) {
-            const updatedOptions = existingOption
-              ? (category.options ?? []).map((option) =>
-                  option.id === editingProduct.id
-                    ? { ...option, name: updatedName, price }
-                    : option
-                )
-              : [
-                  ...(category.options ?? []),
-                  {
-                    id: editingProduct.id,
-                    name: updatedName,
-                    price,
-                  },
-                ];
-
-            return {
-              ...category,
-              options: updatedOptions,
-            };
-          }
-
-          if (isPreviousCategory && previousCategoryId !== targetCategoryId) {
-            return {
-              ...category,
-              options: (category.options ?? []).filter((option) => option.id !== editingProduct.id),
-            };
-          }
-
-          return category;
-        });
-      });
-
-      setBebidas((current) =>
-        current.map((item) =>
-          item.optionId === editingProduct.id
-            ? {
-                ...item,
-                id: `${targetCategoryId}|${editingProduct.id}`,
-                categoryId: targetCategoryId,
-                categoryName:
-                  beverageCatalog.find((category) => category.id === targetCategoryId)?.name ||
-                  item.categoryName,
-                name:
-                  beverageCatalog.find((category) => category.id === targetCategoryId)?.name ||
-                  item.name,
-                option: updatedName,
-                price,
-              }
-            : item
-        )
-      );
-    }
-
-    if (editingProduct.type === 'extra') {
-      setExtrasCatalog((prev) =>
-        prev.map((item) =>
-          item.id === editingProduct.id
-            ? {
-                ...item,
-                name: editingProduct.name.trim(),
-                price,
-                category: editingProduct.category,
-                ingredients: editingProduct.ingredients.trim(),
-              }
-            : item
-        )
-      );
-
-      setExtras((current) =>
-        current.map((item) =>
-          item.id === editingProduct.id
-            ? {
-                ...item,
-                name: editingProduct.name.trim(),
-                price,
-                category: editingProduct.category,
-                ingredients: editingProduct.ingredients.trim(),
-              }
-            : item
-        )
-      );
-    }
-
-    setEditingProduct(null);
-  };
 
   const isStepValid = (step) => {
     switch(step) {
@@ -589,6 +256,25 @@ function App() {
     );
   }
 
+  // Show admin panel if in admin mode
+  if (isAdminMode) {
+    return (
+      <AdminPanel
+        churrascoCatalog={churrascoCatalog}
+        setChurrascoCatalog={setChurrascoCatalog}
+        beverageCatalog={beverageCatalog}
+        setBeverageCatalog={setBeverageCatalog}
+        extrasCatalog={extrasCatalog}
+        setExtrasCatalog={setExtrasCatalog}
+        onLogout={() => {
+          setIsAdminMode(false);
+          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+          window.location.href = window.location.pathname;
+        }}
+      />
+    );
+  }
+
   return (
     <div className="App">
       {/* HEADER */}
@@ -640,199 +326,6 @@ function App() {
 
       {/* CONTENT */}
       <main className="content">
-        {isAdminMode && (
-          <section className="manager-card">
-            <div className="manager-header">
-              <h2>🛠️ Gerenciar Produtos</h2>
-              <button
-                className="manager-toggle"
-                onClick={() => setShowManager((prev) => !prev)}
-                type="button"
-              >
-                {showManager ? 'Fechar' : 'Abrir'}
-              </button>
-            </div>
-
-            {showManager && (
-              <>
-                <form className="manager-form" onSubmit={handleAddProduct}>
-                  <select name="type" value={newProduct.type} onChange={handleNewProductChange}>
-                    <option value="churrasco">Pacote de churrasco</option>
-                    <option value="bebida-categoria">Categoria de bebida</option>
-                    <option value="bebida-opcao">Opção de bebida</option>
-                    <option value="extra">Extra</option>
-                  </select>
-
-                  <input
-                    type="text"
-                    name="name"
-                    value={newProduct.name}
-                    onChange={handleNewProductChange}
-                    placeholder="Nome do produto"
-                  />
-
-                  {!newProduct.type.includes('bebida') && (
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      name="price"
-                      value={newProduct.price}
-                      onChange={handleNewProductChange}
-                      placeholder="Preço"
-                    />
-                  )}
-
-                  {newProduct.type === 'bebida-opcao' && (
-                    <select
-                      name="beverageCategoryId"
-                      value={newProduct.beverageCategoryId}
-                      onChange={handleNewProductChange}
-                    >
-                      {beverageCatalog.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-
-                  {newProduct.type === 'extra' && (
-                    <>
-                      <select name="category" value={newProduct.category} onChange={handleNewProductChange}>
-                        {extraCategories.map((category) => (
-                          <option key={category} value={category}>{category}</option>
-                        ))}
-                      </select>
-
-                      <input
-                        type="text"
-                        name="ingredients"
-                        value={newProduct.ingredients}
-                        onChange={handleNewProductChange}
-                        placeholder="Ingredientes (opcional)"
-                      />
-                    </>
-                  )}
-
-                  <button type="submit" className="manager-submit">+ Incluir produto</button>
-                </form>
-
-                {editingProduct && (
-                  <div className="manager-edit-row">
-                    <strong>Editando:</strong>
-                    <input
-                      type="text"
-                      value={editingProduct.name}
-                      onChange={(event) => setEditingProduct((prev) => ({ ...prev, name: event.target.value }))}
-                    />
-                    {!editingProduct.type.includes('bebida') && (
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={editingProduct.price}
-                        onChange={(event) => setEditingProduct((prev) => ({ ...prev, price: event.target.value }))}
-                      />
-                    )}
-                    {editingProduct.type === 'bebida-opcao' && (
-                      <select
-                        value={editingProduct.parentCategoryId}
-                        onChange={(event) => setEditingProduct((prev) => ({ ...prev, parentCategoryId: event.target.value }))}
-                      >
-                        {beverageCatalog.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    {editingProduct.type === 'extra' && (
-                      <>
-                        <select
-                          value={editingProduct.category}
-                          onChange={(event) => setEditingProduct((prev) => ({ ...prev, category: event.target.value }))}
-                        >
-                          {extraCategories.map((category) => (
-                            <option key={category} value={category}>{category}</option>
-                          ))}
-                        </select>
-                        <input
-                          type="text"
-                          value={editingProduct.ingredients}
-                          onChange={(event) => setEditingProduct((prev) => ({ ...prev, ingredients: event.target.value }))}
-                          placeholder="Ingredientes"
-                        />
-                      </>
-                    )}
-                    <button type="button" className="manager-save" onClick={saveEditProduct}>Salvar</button>
-                    <button type="button" className="manager-cancel" onClick={() => setEditingProduct(null)}>Cancelar</button>
-                  </div>
-                )}
-
-                <div className="manager-lists">
-                  <div className="manager-list-block">
-                    <h3>Pacotes de Churrasco</h3>
-                    {churrascoCatalog.map((item) => (
-                      <div key={item.id} className="manager-item-row">
-                        <span>{item.name} — R$ {item.price.toFixed(2)}</span>
-                        <div className="manager-item-actions">
-                          <button type="button" onClick={() => startEditProduct('churrasco', item)}>Editar</button>
-                          <button type="button" onClick={() => handleDeleteProduct('churrasco', item.id)}>Excluir</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="manager-list-block">
-                    <h3>Bebidas</h3>
-                    {beverageCatalog.map((category) => (
-                      <div key={category.id} className="manager-beverage-group">
-                        <div className="manager-item-row manager-beverage-category-row">
-                          <span>{category.icon} {category.name}</span>
-                          <div className="manager-item-actions">
-                            <button type="button" onClick={() => startEditProduct('bebida-categoria', category)}>Editar</button>
-                            <button type="button" onClick={() => handleDeleteProduct('bebida-categoria', category.id)}>Excluir</button>
-                          </div>
-                        </div>
-
-                        <div className="manager-beverage-options">
-                          {(category.options ?? []).map((option) => (
-                            <div key={option.id} className="manager-item-row manager-beverage-option-row">
-                              <span>{option.name}</span>
-                              <div className="manager-item-actions">
-                                <button type="button" onClick={() => startEditProduct('bebida-opcao', option)}>Editar</button>
-                                <button type="button" onClick={() => handleDeleteProduct('bebida-opcao', option.id)}>Excluir</button>
-                              </div>
-                            </div>
-                          ))}
-
-                          <p className="manager-beverage-empty">
-                            {(!category.options || category.options.length === 0) && 'Nenhuma opção cadastrada'}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="manager-list-block">
-                    <h3>Extras</h3>
-                    {extrasCatalog.map((item) => (
-                      <div key={item.id} className="manager-item-row">
-                        <span>{item.name} — R$ {item.price.toFixed(2)}</span>
-                        <div className="manager-item-actions">
-                          <button type="button" onClick={() => startEditProduct('extra', item)}>Editar</button>
-                          <button type="button" onClick={() => handleDeleteProduct('extra', item.id)}>Excluir</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </section>
-        )}
-
         <div className="orcamento-layout">
           <section className="orcamento-main">
             {/* STEP 1 */}
