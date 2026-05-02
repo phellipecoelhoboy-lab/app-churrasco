@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import ChurrascoOptions from './components/ChurrascoOptions';
 import BebidaOptions from './components/BebidaOptions';
 import ExtrasOptions from './components/ExtrasOptions';
 import Resumo from './components/Resumo';
 import CarnesSelector from './components/CarnesSelector';
 import AcompanhamentosSelector from './components/AcompanhamentosSelector';
-import AdminPanel from './components/AdminPanel';
 import {
   churrascoPackages as initialChurrascoPackages,
   beverages as initialBeverages,
@@ -259,19 +259,15 @@ function App() {
   // Show admin panel if in admin mode
   if (isAdminMode) {
     return (
-      <AdminPanel
-        churrascoCatalog={churrascoCatalog}
-        setChurrascoCatalog={setChurrascoCatalog}
-        beverageCatalog={beverageCatalog}
-        setBeverageCatalog={setBeverageCatalog}
-        extrasCatalog={extrasCatalog}
-        setExtrasCatalog={setExtrasCatalog}
-        onLogout={() => {
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>Admin Mode</h1>
+        <p>Admin panel component not available</p>
+        <button onClick={() => {
           setIsAdminMode(false);
           sessionStorage.removeItem(ADMIN_SESSION_KEY);
           window.location.href = window.location.pathname;
-        }}
-      />
+        }}>Logout</button>
+      </div>
     );
   }
 
@@ -497,6 +493,7 @@ function App() {
           Próximo →
         </button>
       </footer>
+      <SpeedInsights />
     </div>
   );
 }
