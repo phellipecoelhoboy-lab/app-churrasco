@@ -93,49 +93,22 @@ const Resumo = ({
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 10;
     const printableWidth = pageWidth - (margin * 2);
-    const imageHeight = (canvas.height * printableWidth) / canvas.width;
+    const printableHeight = pageHeight - (margin * 2);
 
-    if (imageHeight <= pageHeight - (margin * 2)) {
-      pdf.addImage(imageData, 'PNG', margin, margin, printableWidth, imageHeight);
-    } else {
-      const pageCanvas = document.createElement('canvas');
-      const pageContext = pageCanvas.getContext('2d');
+    let displayWidth = printableWidth;
+    let displayHeight = (canvas.height * printableWidth) / canvas.width;
 
-      if (!pageContext) {
-        throw new Error('Não foi possível preparar o PDF.');
-      }
-
-      const printableHeightPx = ((pageHeight - (margin * 2)) * canvas.width) / printableWidth;
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = printableHeightPx;
-
-      let renderedHeight = 0;
-      let firstPage = true;
-
-      while (renderedHeight < canvas.height) {
-        pageContext.clearRect(0, 0, pageCanvas.width, pageCanvas.height);
-        pageContext.drawImage(
-          canvas,
-          0,
-          renderedHeight,
-          canvas.width,
-          printableHeightPx,
-          0,
-          0,
-          canvas.width,
-          printableHeightPx,
-        );
-
-        const pageImage = pageCanvas.toDataURL('image/png');
-        if (!firstPage) {
-          pdf.addPage();
-        }
-
-        pdf.addImage(pageImage, 'PNG', margin, margin, printableWidth, pageHeight - (margin * 2));
-        firstPage = false;
-        renderedHeight += printableHeightPx;
-      }
+    // Se a altura calculada do orçamento ultrapassar a altura útil da folha A4,
+    // reduzimos proporcionalmente para caber inteiro em uma única folha.
+    if (displayHeight > printableHeight) {
+      displayHeight = printableHeight;
+      displayWidth = (canvas.width * printableHeight) / canvas.height;
     }
+
+    // Centraliza horizontalmente na folha A4
+    const xPos = margin + (printableWidth - displayWidth) / 2;
+
+    pdf.addImage(imageData, 'PNG', xPos, margin, displayWidth, displayHeight);
 
     const nomeSlug = sanitizeFileName(clienteNome) || 'cliente';
     const fileName = `orcamento_${nomeSlug}_${data}_${pdfLayout}.pdf`;
@@ -156,7 +129,6 @@ const Resumo = ({
       return;
     }
 
-    const whatsappTab = window.open('', '_blank', 'noopener,noreferrer');
     setIsSending(true);
 
     try {
@@ -180,10 +152,10 @@ const Resumo = ({
             bebidas,
             extras,
             totals: {
-              churrasco: totalChurrascoValor,
+              churrasco: 0,
               bebidas: 0,
-              extras: totalExtrasValor,
-              total: totalEventoValor,
+              extras: 0,
+              total: 0,
             },
           },
           pdfFile: file,
@@ -194,12 +166,7 @@ const Resumo = ({
       }
 
       const dataFormatadaTexto = new Date(data).toLocaleDateString('pt-BR');
-      const totalChurrasco = (churrasco.price * numPessoas).toFixed(2);
-
-      const totalExtras = (0).toFixed(2); // Extras não possuem custo
-      const totalGeral = calcularTotal().toFixed(2);
-
-      let mensagem = '🔥 *ORÇAMENTO DE CHURRASCO* 🍖\n\n';
+      let mensagem = '🔥 *SOLICITAÇÃO DE ORÇAMENTO DE CHURRASCO* 🍖\n\n';
       mensagem += '━━━━━━━━━━━━━━━━━━━━━\n';
       mensagem += '📋 *INFORMAÇÕES DO EVENTO*\n';
       mensagem += '━━━━━━━━━━━━━━━━━━━━━\n';
@@ -216,8 +183,6 @@ const Resumo = ({
 
       mensagem += '📍 *Pacote de Churrasco:*\n';
       mensagem += `${churrasco.name}\n`;
-      mensagem += `💰 R$ ${churrasco.price.toFixed(2)} por pessoa\n`;
-      mensagem += `📊 Subtotal: R$ ${totalChurrasco}\n`;
 
       if (churrasco.isCustom) {
         if (carnesCustomizadas && carnesCustomizadas.length > 0) {
@@ -248,8 +213,7 @@ const Resumo = ({
       }
 
       mensagem += '━━━━━━━━━━━━━━━━━━━━━\n';
-      mensagem += '💰 *TOTAL DO ORÇAMENTO*\n';
-      mensagem += `*R$ ${totalGeral}*\n`;
+      mensagem += '💬 *Valores a combinar com o churrasqueiro.*\n';
       mensagem += '━━━━━━━━━━━━━━━━━━━━━\n\n';
       mensagem += `📎 PDF gerado: ${fileName}\n`;
       mensagem += `🎨 Layout: ${pdfLayout === 'elegante' ? 'Elegante' : 'Vibrante'}\n`;
@@ -258,33 +222,14 @@ const Resumo = ({
       }
       mensagem += '✅ Gostaria de confirmar este orçamento para o meu evento!';
 
-      const urlWhatsApp = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(mensagem)}`;
-      if (whatsappTab) {
-        whatsappTab.location.href = urlWhatsApp;
-      } else {
-        window.open(urlWhatsApp, '_blank', 'noopener,noreferrer');
-      }
+      const targetPhone = '5562999394165';
 
-      const canShareFile =
-        typeof navigator !== 'undefined'
-        && typeof navigator.share === 'function'
-        && typeof navigator.canShare === 'function'
-        && navigator.canShare({ files: [file] });
-
-      if (canShareFile) {
-        try {
-          await navigator.share({
-            title: 'Orçamento de Churrasco',
-            text: `Segue o PDF do orçamento: ${fileName}`,
-            files: [file],
-          });
-          return;
-        } catch (error) {
-          console.warn('Falha ao compartilhar arquivo diretamente:', error);
-        }
-      }
-
+      // 1. Garante a geração e o download do arquivo PDF na máquina do usuário
       triggerPdfDownload(file, fileName);
+
+      // 2. Direciona a conversa do WhatsApp para o número do churrasqueiro
+      const urlWhatsApp = `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(mensagem)}`;
+      window.location.href = urlWhatsApp;
     } catch (error) {
       console.error(error);
       alert('⚠️ Não foi possível gerar o PDF do orçamento. Tente novamente.');
@@ -393,38 +338,47 @@ const Resumo = ({
               <table className="pdf-table">
                 <thead>
                   <tr>
-                    <th>SERVICO</th>
-                    <th>VALOR</th>
-                    <th>QTD</th>
-                    <th>SUBTOTAL</th>
+                    <th style={{ textAlign: 'left' }}>SERVICO</th>
+                    <th style={{ textAlign: 'left' }}>VALOR</th>
+                    <th style={{ textAlign: 'left' }}>QTD</th>
                   </tr>
                 </thead>
                 <tbody>
                   {churrasco && (
                     <tr>
-                      <td>{churrasco.name.toUpperCase()}</td>
-                      <td>R$ {churrasco.price.toFixed(2)}</td>
-                      <td>{numPessoas}</td>
-                      <td>R$ {totalChurrascoValor.toFixed(2)}</td>
+                      <td style={{ textAlign: 'left' }}>{churrasco.name.toUpperCase()}</td>
+                      <td style={{ textAlign: 'left' }}>SOB CONSULTA</td>
+                      <td style={{ textAlign: 'left' }}>{numPessoas}</td>
                     </tr>
                   )}
-                  {bebidas.map((beb, idx) => (
-                    <tr key={`beb-${idx}`}>
-                      <td>{`${beb.categoryName ? `${beb.categoryName} - ` : ''}${beb.option}`.toUpperCase()}</td>
-                      <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic', letterSpacing: '2px', fontSize: '0.8rem' }}>INCLUSO</td>
-                    </tr>
-                  ))}
-                  {extras.map((extra, idx) => (
-                    <tr key={`extra-table-${idx}`}>
-                      <td>{extra.name.toUpperCase()}</td>
-                      <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic', letterSpacing: '2px', fontSize: '0.8rem' }}>INCLUSO</td>
-                    </tr>
-                  ))}
+                  {bebidas.length > 0 && (
+                    bebidas.map((beb, idx) => (
+                      <tr key={`beb-${idx}`}>
+                        <td style={{ textAlign: 'left' }}>{`${beb.categoryName ? `${beb.categoryName} - ` : ''}${beb.option}`.toUpperCase()}</td>
+                        <td style={{ textAlign: 'left' }}>INCLUSO</td>
+                        <td style={{ textAlign: 'left' }}>-</td>
+                      </tr>
+                    ))
+                  )}
+                  {extras.length > 0 && (
+                    <>
+                      <tr style={{ background: 'rgba(0, 0, 0, 0.05)' }}>
+                        <td colSpan="3" style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#111', padding: '0.4rem 0.6rem', textAlign: 'left' }}>SERVIÇOS</td>
+                      </tr>
+                      {extras.map((extra, idx) => (
+                        <tr key={`extra-table-${idx}`}>
+                          <td style={{ textAlign: 'left' }}>{extra.name.toUpperCase()}</td>
+                          <td style={{ textAlign: 'left' }}>INCLUSO</td>
+                          <td style={{ textAlign: 'left' }}>1</td>
+                        </tr>
+                      ))}
+                    </>
+                  )}
                 </tbody>
               </table>
               <div className="pdf-total-row">
                 <span className="pdf-total-label">TOTAL</span>
-                <span className="pdf-total-value">R$ {totalEventoValor.toFixed(2)}</span>
+                <span className="pdf-total-value">SOB CONSULTA</span>
               </div>
             </div>
           </>
@@ -440,7 +394,6 @@ const Resumo = ({
               <div className="pdf-header-package">
                 <span className="pdf-package-label">Pacote Selecionado</span>
                 <strong>{churrasco?.name}</strong>
-                <span className="pdf-package-price">R$ {churrasco?.price?.toFixed(2)} por pessoa</span>
               </div>
 
               <div className="pdf-header-logo">
@@ -495,49 +448,52 @@ const Resumo = ({
                 </div>
               )}
 
-              <div className="pdf-finance-strip">
-                <div className="pdf-finance-card"><span>Churrasco</span><strong>R$ {totalChurrascoValor.toFixed(2)}</strong></div>
-                <div className="pdf-finance-card"><span>Bebidas</span><strong>R$ {totalBebidasValor.toFixed(2)}</strong></div>
-                <div className="pdf-finance-card"><span>Extras</span><strong>R$ {totalExtrasValor.toFixed(2)}</strong></div>
-              </div>
-
               <div className="pdf-table-section">
                 <table className="pdf-table">
                   <thead>
                     <tr>
-                      <th>DESCRICAO</th>
-                      <th>VALOR UN.</th>
-                      <th>QTD</th>
-                      <th>TOTAL</th>
+                      <th style={{ textAlign: 'left' }}>DESCRICAO</th>
+                      <th style={{ textAlign: 'left' }}>VALOR UN.</th>
+                      <th style={{ textAlign: 'left' }}>QTD</th>
                     </tr>
                   </thead>
                   <tbody>
                     {churrasco && (
                       <tr>
-                        <td>{churrasco.name}</td>
-                        <td>R$ {churrasco.price.toFixed(2)}</td>
-                        <td>{numPessoas}</td>
-                        <td>R$ {totalChurrascoValor.toFixed(2)}</td>
+                        <td style={{ textAlign: 'left' }}>{churrasco.name}</td>
+                        <td style={{ textAlign: 'left' }}>Sob consulta</td>
+                        <td style={{ textAlign: 'left' }}>{numPessoas}</td>
                       </tr>
                     )}
-                    {bebidas.map((beb, idx) => (
-                      <tr key={`beb-${idx}`}>
-                        <td>{beb.categoryName ? `${beb.categoryName} - ` : ''}{beb.option}</td>
-                        <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>Incluso</td>
-                      </tr>
-                    ))}
-                    {extras.map((extra, idx) => (
-                      <tr key={`extra-table-${idx}`}>
-                        <td>{extra.name}</td>
-                        <td colSpan="3" style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>Incluso</td>
-                      </tr>
-                    ))}
+                    {bebidas.length > 0 && (
+                      bebidas.map((beb, idx) => (
+                        <tr key={`beb-${idx}`}>
+                          <td style={{ textAlign: 'left' }}>{beb.categoryName ? `${beb.categoryName} - ` : ''}{beb.option}</td>
+                          <td style={{ textAlign: 'left' }}>Incluso</td>
+                          <td style={{ textAlign: 'left' }}>-</td>
+                        </tr>
+                      ))
+                    )}
+                    {extras.length > 0 && (
+                      <>
+                        <tr style={{ background: 'rgba(0, 0, 0, 0.05)' }}>
+                          <td colSpan="3" style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#111', padding: '0.4rem 0.6rem', textAlign: 'left' }}>SERVIÇOS</td>
+                        </tr>
+                        {extras.map((extra, idx) => (
+                          <tr key={`extra-table-${idx}`}>
+                            <td style={{ textAlign: 'left' }}>{extra.name}</td>
+                            <td style={{ textAlign: 'left' }}>Incluso</td>
+                            <td style={{ textAlign: 'left' }}>1</td>
+                          </tr>
+                        ))}
+                      </>
+                    )}
                   </tbody>
                 </table>
 
                 <div className="pdf-total-row">
                   <span className="pdf-total-label">Total do Evento</span>
-                  <span className="pdf-total-value">R$ {totalEventoValor.toFixed(2)}</span>
+                  <span className="pdf-total-value">Sob consulta</span>
                 </div>
               </div>
 

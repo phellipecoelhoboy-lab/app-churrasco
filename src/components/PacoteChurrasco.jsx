@@ -19,7 +19,6 @@ const PacoteChurrasco = ({ pkg, setChurrasco, isSelected }) => {
           />
           <div className="pacote-info-main">
             <strong className="pacote-name">🍖 {pkg.name}</strong>
-            <span className="pacote-price">R$ {pkg.price.toFixed(2)}/pessoa</span>
           </div>
         </label>
       </div>

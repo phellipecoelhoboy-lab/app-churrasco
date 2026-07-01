@@ -774,6 +774,43 @@
   }
 }
 
+/* Header compacto para telas menores ou com pouca altura vertical */
+@media (max-height: 850px), (max-width: 768px) {
+  .app-header {
+    padding: 1.6rem 1.2rem 1.3rem !important;
+  }
+  .header-gallery {
+    display: none !important; /* Removemos apenas a galeria de imagens para economizar espaço */
+  }
+  .header-branding {
+    margin-bottom: 0.6rem !important;
+  }
+  .header-logo {
+    height: 34px !important;
+  }
+  .header-kicker {
+    height: 32px !important;
+    font-size: 0.72rem !important;
+    padding: 0.2rem 0.6rem !important;
+  }
+  .app-header h1 {
+    font-size: 1.9rem !important;
+    margin-bottom: 0.4rem !important;
+  }
+  .app-header p {
+    font-size: 0.9rem !important;
+    max-width: 520px !important;
+    line-height: 1.4 !important;
+  }
+  .header-tags {
+    margin-top: 0.8rem !important;
+  }
+  .header-tags span {
+    font-size: 0.72rem !important;
+    padding: 0.22rem 0.55rem !important;
+  }
+}
+
 /* Print styles */
 @media print {
   body * {
