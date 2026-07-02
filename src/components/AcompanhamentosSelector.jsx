@@ -1,7 +1,6 @@
 import React from 'react';
-import { availableSideDishes } from '../constants';
 
-const AcompanhamentosSelector = ({ acompanhamentosCustomizados, setAcompanhamentosCustomizados }) => {
+const AcompanhamentosSelector = ({ acompanhamentosCustomizados, setAcompanhamentosCustomizados, availableSideDishes = [] }) => {
   const handleAcompanhamentoToggle = (acompanhamento) => {
     if (acompanhamentosCustomizados.includes(acompanhamento)) {
       // Remove o acompanhamento se já está selecionado

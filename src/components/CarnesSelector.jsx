@@ -1,7 +1,6 @@
 import React from 'react';
-import { availableMeats } from '../constants';
 
-const CarnesSelector = ({ carnesCustomizadas, setCarnesCustomizadas }) => {
+const CarnesSelector = ({ carnesCustomizadas, setCarnesCustomizadas, availableMeats = [] }) => {
   const handleCarneToggle = (carne) => {
     if (carnesCustomizadas.includes(carne)) {
       // Remove a carne se já está selecionada

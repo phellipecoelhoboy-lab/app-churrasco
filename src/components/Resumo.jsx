@@ -338,7 +338,7 @@ const Resumo = ({
               <table className="pdf-table">
                 <thead>
                   <tr>
-                    <th style={{ textAlign: 'left' }}>SERVICO</th>
+                    <th style={{ textAlign: 'left' }}>ITEM</th>
                     <th style={{ textAlign: 'left' }}>VALOR</th>
                     <th style={{ textAlign: 'left' }}>QTD</th>
                   </tr>

@@ -4,54 +4,52 @@
 
 /* BASE: Mobile First (320px até 640px) */
 @media (max-width: 640px) {
-  /* ===== HEADER ===== */
-  .app-header {
-    padding: 1.2rem 0.8rem 1rem;
+  /* ===== STEPPER HEADER ===== */
+  .app-nav-header {
+    padding: 0.5rem 0.8rem;
   }
 
-  .header-kicker {
-    font-size: 0.7rem;
+  .nav-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding: 0;
+  }
+
+  .nav-spacer {
+    display: none;
+  }
+
+  .nav-kicker {
+    display: none;
+  }
+
+  .nav-logo {
+    height: 30px;
+  }
+
+  .stepper-nav {
+    max-width: 100%;
+  }
+
+  .stepper-item {
+    padding: 0.3rem;
+    gap: 0;
+  }
+
+  .step-name,
+  .step-number-label {
+    display: none;
+  }
+
+  .step-badge {
+    width: 32px;
     height: 32px;
-    padding: 0.25rem 0.6rem;
+    font-size: 1.05rem;
   }
 
-  .header-logo {
-    height: 28px;
-    max-width: 60px;
-  }
-
-  .app-header h1 {
-    font-size: 1.4rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .app-header p {
-    font-size: 0.8rem;
-  }
-
-  .header-tags {
-    margin-top: 0.6rem;
-    gap: 0.3rem;
-  }
-
-  .header-tags span {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.5rem;
-  }
-
-  .header-gallery {
-    margin-top: 0.7rem;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.4rem;
-  }
-
-  .header-gallery img {
-    height: 70px;
-  }
-
-  /* ===== PROGRESS BAR ===== */
-  .progress-container {
-    padding: 0.6rem 0.8rem;
+  .stepper-line {
+    margin: 0 0.2rem;
   }
 
   .progress-bar {
@@ -133,7 +131,7 @@
     margin: 0.8rem 0 0.6rem 0;
   }
 
-  .step-section h2 {
+  .step-title {
     font-size: 1.2rem;
     margin-bottom: 0.8rem;
   }
@@ -388,56 +386,22 @@
 
 /* TABLET: 641px até 1023px */
 @media (min-width: 641px) and (max-width: 1023px) {
-  .app-header {
-    padding: 1.8rem 1.2rem 1.5rem;
-  }
-
-  .header-kicker {
-    font-size: 0.73rem;
-    height: 36px;
-    padding: 0.3rem 0.7rem;
-  }
-
-  .header-logo {
-    height: 32px;
-    max-width: 70px;
-  }
-
-  .app-header h1 {
-    font-size: 1.8rem;
-    margin-bottom: 0.35rem;
-  }
-
-  .app-header p {
-    font-size: 0.88rem;
-  }
-
-  .header-tags {
-    margin-top: 0.8rem;
-    gap: 0.4rem;
-  }
-
-  .header-tags span {
-    font-size: 0.72rem;
-    padding: 0.25rem 0.6rem;
-  }
-
-  .header-gallery {
-    margin-top: 0.8rem;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-  }
-
-  .header-gallery img {
-    height: 80px;
-  }
-
-  .progress-container {
+  /* ===== STEPPER HEADER ===== */
+  .app-nav-header {
     padding: 0.7rem 1rem;
   }
 
-  .progress-text {
-    font-size: 0.8rem;
+  .nav-kicker {
+    font-size: 0.72rem;
+  }
+
+  .step-name {
+    font-size: 0.78rem;
+  }
+
+  .stepper-item {
+    padding: 0.35rem 0.5rem;
+    gap: 0.4rem;
   }
 
   .content {
@@ -493,10 +457,13 @@
   .footer-nav {
     gap: 0.8rem;
     padding: 0.9rem;
+    justify-content: center;
   }
 
   .btn {
-    padding: 0.8rem 0.9rem;
+    flex: none;
+    width: 200px;
+    padding: 0.72rem 0.9rem;
     font-size: 0.92rem;
   }
 
@@ -536,33 +503,7 @@
 
 /* DESKTOP: 1024px+ */
 @media (min-width: 1024px) {
-  .app-header {
-    padding: 2.2rem 2rem 2rem;
-  }
-
-  .header-logo {
-    height: 40px;
-    max-width: 90px;
-  }
-
-  .app-header h1 {
-    font-size: 2.2rem;
-  }
-
-  .app-header p {
-    font-size: 1rem;
-    max-width: 600px;
-  }
-
-  .header-gallery {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.7rem;
-    margin-top: 1.2rem;
-  }
-
-  .header-gallery img {
-    height: 100px;
-  }
+  /* Base app-nav-header handles desktop naturally */
 
   .content {
     padding: 1.8rem 2rem;
@@ -571,7 +512,7 @@
   }
 
   .cliente-info-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
 
@@ -618,11 +559,14 @@
     padding: 1.2rem;
     max-width: 1200px;
     margin: 0 auto;
+    justify-content: center;
   }
 
   .btn {
-    padding: 1rem 1.2rem;
-    font-size: 1.05rem;
+    flex: none;
+    width: 200px;
+    padding: 0.75rem 1.2rem;
+    font-size: 0.95rem;
   }
 
   .summary-card {
@@ -743,21 +687,8 @@
 
 /* Orientação landscape em mobile */
 @media (max-height: 500px) {
-  .app-header {
-    padding: 0.8rem 0.8rem 0.6rem;
-  }
-
-  .app-header h1 {
-    font-size: 1.2rem;
-    margin-bottom: 0.2rem;
-  }
-
-  .header-gallery {
-    display: none;
-  }
-
-  .header-tags {
-    margin-top: 0.4rem;
+  .app-nav-header {
+    padding: 0.4rem 0.8rem;
   }
 
   .content {
@@ -775,41 +706,7 @@
 }
 
 /* Header compacto para telas menores ou com pouca altura vertical */
-@media (max-height: 850px), (max-width: 768px) {
-  .app-header {
-    padding: 1.6rem 1.2rem 1.3rem !important;
-  }
-  .header-gallery {
-    display: none !important; /* Removemos apenas a galeria de imagens para economizar espaço */
-  }
-  .header-branding {
-    margin-bottom: 0.6rem !important;
-  }
-  .header-logo {
-    height: 34px !important;
-  }
-  .header-kicker {
-    height: 32px !important;
-    font-size: 0.72rem !important;
-    padding: 0.2rem 0.6rem !important;
-  }
-  .app-header h1 {
-    font-size: 1.9rem !important;
-    margin-bottom: 0.4rem !important;
-  }
-  .app-header p {
-    font-size: 0.9rem !important;
-    max-width: 520px !important;
-    line-height: 1.4 !important;
-  }
-  .header-tags {
-    margin-top: 0.8rem !important;
-  }
-  .header-tags span {
-    font-size: 0.72rem !important;
-    padding: 0.22rem 0.55rem !important;
-  }
-}
+  /* Handled by standard layout */
 
 /* Print styles */
 @media print {

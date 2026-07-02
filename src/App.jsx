@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import ChurrascoOptions from './components/ChurrascoOptions';
 import BebidaOptions from './components/BebidaOptions';
 import ExtrasOptions from './components/ExtrasOptions';
@@ -6,12 +6,16 @@ import Resumo from './components/Resumo';
 import CarnesSelector from './components/CarnesSelector';
 import AcompanhamentosSelector from './components/AcompanhamentosSelector';
 import AdminPanel from './components/AdminPanel';
+import AdminLogin from './components/AdminLogin';
+import { supabase, isSupabaseConfigured } from './supabase';
 import {
   churrascoPackages as initialChurrascoPackages,
   beverages as initialBeverages,
   caipis,
   classicDrinks,
   outros,
+  availableMeats,
+  availableSideDishes,
 } from './constants';
 import './AppClean.css';
 import './responsive.css';
@@ -29,7 +33,7 @@ const normalizeBeverageCatalog = (items) => items.map((item, index) => ({
 const getDefaultBeverageCategoryId = (catalog) => catalog[0]?.id ?? '';
 
 function App() {
-  const ADMIN_PASSWORD = 'Oyama@2026!';
+  const ADMIN_PASSWORD = '801328';
   const ADMIN_SESSION_KEY = 'app_churrasco_admin_auth';
   const extraCategories = ['🍸 Caipis Gourmet', '🍹 Drinks Clássicos', '🎉 Serviços Adicionais'];
   const initialBeverageCatalog = normalizeBeverageCatalog(initialBeverages);
@@ -99,17 +103,118 @@ function App() {
     ];
   });
 
+  const [meatsList, setMeatsList] = useState(availableMeats);
+  const [sidesList, setSidesList] = useState(availableSideDishes);
+
+  // Sync state changes with local storage, and with Supabase database if in admin mode
   useEffect(() => {
     localStorage.setItem('churrascoCatalog', JSON.stringify(churrascoCatalog));
-  }, [churrascoCatalog]);
+    if (isSupabaseConfigured && isAdminMode) {
+      supabase.from('catalogos').upsert({ id: 'churrasco', dados: churrascoCatalog }).then(({ error }) => {
+        if (error) console.error('Erro ao sincronizar churrasco no Supabase:', error);
+      });
+    }
+  }, [churrascoCatalog, isAdminMode]);
 
   useEffect(() => {
     localStorage.setItem('beverageCatalog', JSON.stringify(beverageCatalog));
-  }, [beverageCatalog]);
+    if (isSupabaseConfigured && isAdminMode) {
+      supabase.from('catalogos').upsert({ id: 'beverages', dados: beverageCatalog }).then(({ error }) => {
+        if (error) console.error('Erro ao sincronizar bebidas no Supabase:', error);
+      });
+    }
+  }, [beverageCatalog, isAdminMode]);
 
   useEffect(() => {
     localStorage.setItem('extrasCatalog', JSON.stringify(extrasCatalog));
-  }, [extrasCatalog]);
+    if (isSupabaseConfigured && isAdminMode) {
+      supabase.from('catalogos').upsert({ id: 'extras', dados: extrasCatalog }).then(({ error }) => {
+        if (error) console.error('Erro ao sincronizar extras no Supabase:', error);
+      });
+    }
+  }, [extrasCatalog, isAdminMode]);
+
+  useEffect(() => {
+    if (isSupabaseConfigured && isAdminMode) {
+      supabase.from('catalogos').upsert({ id: 'available_meats', dados: meatsList }).then(({ error }) => {
+        if (error) console.error('Erro ao sincronizar carnes no Supabase:', error);
+      });
+    }
+  }, [meatsList, isAdminMode]);
+
+  useEffect(() => {
+    if (isSupabaseConfigured && isAdminMode) {
+      supabase.from('catalogos').upsert({ id: 'available_side_dishes', dados: sidesList }).then(({ error }) => {
+        if (error) console.error('Erro ao sincronizar acompanhamentos no Supabase:', error);
+      });
+    }
+  }, [sidesList, isAdminMode]);
+
+  // Load catalogs from Supabase database on mount, and auto-seed if database is empty
+  useEffect(() => {
+    const fetchCatalogs = async () => {
+      if (!isSupabaseConfigured) return;
+      try {
+        const { data, error } = await supabase
+          .from('catalogos')
+          .select('*');
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const churrascoRow = data.find(r => r.id === 'churrasco');
+          const beveragesRow = data.find(r => r.id === 'beverages');
+          const extrasRow = data.find(r => r.id === 'extras');
+          const meatsRow = data.find(r => r.id === 'available_meats');
+          const sidesRow = data.find(r => r.id === 'available_side_dishes');
+
+          if (churrascoRow) setChurrascoCatalog(churrascoRow.dados);
+          if (beveragesRow) setBeverageCatalog(beveragesRow.dados);
+          if (extrasRow) setExtrasCatalog(extrasRow.dados);
+          if (meatsRow) setMeatsList(meatsRow.dados);
+          if (sidesRow) setSidesList(sidesRow.dados);
+        } else {
+          // Table is empty, seed it with the default values
+          console.log('🌱 Banco de dados Supabase vazio. Semeando catálogos padrão...');
+          const initialChurrasco = initialChurrascoPackages.map((item, index) => ({
+            ...item,
+            id: `churrasco-${index + 1}`,
+          }));
+          const initialExtras = [
+            ...caipis.map((item, index) => ({
+              ...item,
+              id: `extra-caipi-${index + 1}`,
+              category: '🍸 Caipis Gourmet',
+            })),
+            ...classicDrinks.map((item, index) => ({
+              ...item,
+              id: `extra-drink-${index + 1}`,
+              category: '🍹 Drinks Clássicos',
+            })),
+            ...outros.map((item, index) => ({
+              ...item,
+              id: `extra-servico-${index + 1}`,
+              category: '🎉 Serviços Adicionais',
+            })),
+          ];
+
+          const seedData = [
+            { id: 'churrasco', dados: initialChurrasco },
+            { id: 'beverages', dados: beverageCatalog },
+            { id: 'extras', dados: initialExtras },
+            { id: 'available_meats', dados: availableMeats },
+            { id: 'available_side_dishes', dados: availableSideDishes }
+          ];
+
+          await supabase.from('catalogos').upsert(seedData);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar catálogos do Supabase:', err);
+      }
+    };
+
+    fetchCatalogs();
+  }, []);
 
   useEffect(() => {
     const hasAdminParam = new URLSearchParams(window.location.search).get('admin') === '1';
@@ -124,22 +229,6 @@ function App() {
       setIsAdminMode(true);
       return;
     }
-
-    const password = window.prompt('Digite a senha de administrador:');
-
-    if ((password ?? '').trim() === ADMIN_PASSWORD) {
-      sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
-      setIsAdminMode(true);
-      return;
-    }
-
-    setIsAdminMode(false);
-    sessionStorage.removeItem(ADMIN_SESSION_KEY);
-    window.alert('Senha inválida.');
-
-    const cleanUrl = new URL(window.location.href);
-    cleanUrl.searchParams.delete('admin');
-    window.history.replaceState({}, '', `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
   }, []);
 
   // Limpar carnes e acompanhamentos customizados quando o pacote mudar
@@ -215,6 +304,60 @@ function App() {
     }
   };
 
+  const isStepClickable = (stepId) => {
+    if (stepId === currentStep) return true;
+    if (stepId < currentStep) return true;
+    for (let s = 1; s < stepId; s++) {
+      if (!isStepValid(s)) return false;
+    }
+    return true;
+  };
+
+  // Show login panel if param is present but admin is not authenticated
+  const hasAdminParam = new URLSearchParams(window.location.search).get('admin') === '1';
+  if (hasAdminParam && !isAdminMode) {
+    return (
+      <AdminLogin
+        onLogin={(pwd) => {
+          if (pwd === ADMIN_PASSWORD) {
+            sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+            setIsAdminMode(true);
+          } else {
+            alert('⚠️ Senha incorreta!');
+          }
+        }}
+        onCancel={() => {
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete('admin');
+          window.location.href = cleanUrl.pathname + cleanUrl.search + cleanUrl.hash;
+        }}
+      />
+    );
+  }
+
+  // Show admin panel if in admin mode
+  if (isAdminMode) {
+    return (
+      <AdminPanel
+        churrascoCatalog={churrascoCatalog}
+        setChurrascoCatalog={setChurrascoCatalog}
+        beverageCatalog={beverageCatalog}
+        setBeverageCatalog={setBeverageCatalog}
+        extrasCatalog={extrasCatalog}
+        setExtrasCatalog={setExtrasCatalog}
+        meatsList={meatsList}
+        setMeatsList={setMeatsList}
+        sidesList={sidesList}
+        setSidesList={setSidesList}
+        onLogout={() => {
+          setIsAdminMode(false);
+          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+          window.location.href = window.location.pathname;
+        }}
+      />
+    );
+  }
+
   if (currentStep === 0) {
     return (
       <div className="premium-welcome-wrapper">
@@ -249,6 +392,18 @@ function App() {
             <span>Master Parrillero 👨‍🍳</span>
             <span className="premium-dot">•</span>
             <span>Signature Drinks 🍹</span>
+            <span className="premium-dot">•</span>
+            <span 
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('admin', '1');
+                window.location.href = url.pathname + url.search + url.hash;
+              }}
+              style={{ cursor: 'pointer', textDecoration: 'underline' }}
+              title="Acesso Administrativo"
+            >
+              Admin ⚙️
+            </span>
           </div>
 
         </div>
@@ -256,82 +411,90 @@ function App() {
     );
   }
 
-  // Show admin panel if in admin mode
-  if (isAdminMode) {
-    return (
-      <AdminPanel
-        churrascoCatalog={churrascoCatalog}
-        setChurrascoCatalog={setChurrascoCatalog}
-        beverageCatalog={beverageCatalog}
-        setBeverageCatalog={setBeverageCatalog}
-        extrasCatalog={extrasCatalog}
-        setExtrasCatalog={setExtrasCatalog}
-        onLogout={() => {
-          setIsAdminMode(false);
-          sessionStorage.removeItem(ADMIN_SESSION_KEY);
-          window.location.href = window.location.pathname;
-        }}
-      />
-    );
-  }
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 1: return "👥 Quantas Pessoas?";
+      case 2: return "🍖 Escolha o Churrasco";
+      case 3: return "🍻 Escolha as Bebidas";
+      case 4: return "🎉 Serviços Extras (Opcional)";
+      case 5: return "📋 Confirme seu Orçamento";
+      default: return "";
+    }
+  };
 
   return (
     <div className="App">
-      {/* HEADER */}
-      <header className="app-header">
-        <div className="app-header-content">
+      {/* HEADER WITH STEPPER */}
+      <header className="app-nav-header">
+        <div className="nav-container">
           <div 
-            className="header-branding" 
+            className="nav-branding" 
             onClick={() => setCurrentStep(0)} 
             style={{ cursor: 'pointer' }}
             title="Voltar à tela de Boas-vindas"
           >
-            <img src="/img/oyama-logo.png" alt="Logo Oyama" className="header-logo" />
-            <span className="header-kicker">Mestre das Chamas</span>
+            <img src="/img/oyama-logo.png" alt="Logo Oyama" className="nav-logo" />
+            <span className="nav-kicker">Mestre das Chamas</span>
           </div>
-          <h1>🔥 Churrasco 🍖</h1>
-          <p>Parrilla, acompanhamentos e bebidas no ponto certo para o seu evento</p>
-          <div className="header-tags" aria-hidden="true">
-            <span>🥩 Carnes Nobres</span>
-            <span>🍻 Bebidas</span>
-            <span>👨‍🍳 Equipe Completa</span>
-          </div>
-          <div className="header-gallery">
-            <img
-              src="https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1200&q=80"
-              alt="Churrasco na brasa"
-              loading="eager"
-            />
-            <img
-              src="/img/mini hambu.png"
-              alt="Mini hambúrguer"
-              loading="lazy"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=1200&q=80"
-              alt="Mesa de churrasco completa"
-              loading="lazy"
-            />
+
+          <nav className="stepper-nav">
+            {[
+              { id: 1, label: "Identificação", icon: "👥" },
+              { id: 2, label: "Churrasco", icon: "🍖" },
+              { id: 3, label: "Bebidas", icon: "🍻" },
+              { id: 4, label: "Extras", icon: "🎉" },
+              { id: 5, label: "Resumo", icon: "📋" }
+            ].map((step, index) => {
+              const isActive = currentStep === step.id;
+              const isCompleted = currentStep > step.id;
+              const isClickable = isStepClickable(step.id);
+              return (
+                <Fragment key={step.id}>
+                  {index > 0 && <div className={`stepper-line ${currentStep >= step.id ? 'active' : ''}`}></div>}
+                  <div 
+                    className={`stepper-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isClickable ? 'clickable' : ''}`}
+                    onClick={() => isClickable && setCurrentStep(step.id)}
+                    title={isClickable ? `Ir para ${step.label}` : "Preencha as etapas anteriores para liberar"}
+                  >
+                    <span className="step-badge">
+                      {isCompleted ? '✓' : step.icon}
+                    </span>
+                    <span className="step-text">
+                      <span className="step-number-label">Passo {step.id}</span>
+                      <span className="step-name">{step.label}</span>
+                    </span>
+                  </div>
+                </Fragment>
+              );
+            })}
+          </nav>
+          <div className="nav-spacer">
+            <button
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('admin', '1');
+                window.location.href = url.pathname + url.search + url.hash;
+              }}
+              className="admin-nav-link"
+              title="Painel Administrativo"
+            >
+              Admin ⚙️
+            </button>
           </div>
         </div>
       </header>
 
-      {/* PROGRESS */}
-      {currentStep > 0 && (
-        <div className="progress-container">
-          <div className="progress-bar" style={{ width: `${(currentStep / totalSteps) * 100}%` }}></div>
-          <div className="progress-text">Passo {currentStep} de {totalSteps}</div>
-        </div>
-      )}
-
       {/* CONTENT */}
       <main className="content">
+        {currentStep > 0 && (
+          <h2 className="step-title">{getStepTitle()}</h2>
+        )}
+
         <div className="orcamento-layout">
           <section className="orcamento-main">
             {/* STEP 1 */}
             {currentStep === 1 && (
               <section className="step-section">
-                <h2>👥 Quantas Pessoas?</h2>
                 <div className="step-body">
                   <div className="cliente-info-grid">
                     <div className="cliente-input-group">
@@ -358,30 +521,34 @@ function App() {
                         className="input-large input-customer"
                       />
                     </div>
+
+                    <div className="cliente-input-group">
+                      <label htmlFor="numPessoas">Quantidade de pessoas</label>
+                      <input 
+                        id="numPessoas"
+                        type="number" 
+                        min="1"
+                        max="1000"
+                        value={numPessoas}
+                        onChange={(e) => {
+                          const rawValue = e.target.value;
+
+                          if (rawValue === '') {
+                            setNumPessoas('');
+                            return;
+                          }
+
+                          const value = parseInt(rawValue, 10);
+                          if (!isNaN(value) && value > 0) {
+                            setNumPessoas(value);
+                          }
+                        }}
+                        placeholder="Digite a quantidade"
+                        className="input-large input-customer"
+                        autoFocus
+                      />
+                    </div>
                   </div>
-
-                  <input 
-                    type="number" 
-                    min="1"
-                    max="1000"
-                    value={numPessoas}
-                    onChange={(e) => {
-                      const rawValue = e.target.value;
-
-                      if (rawValue === '') {
-                        setNumPessoas('');
-                        return;
-                      }
-
-                      const value = parseInt(rawValue, 10);
-                      if (!isNaN(value) && value > 0) {
-                        setNumPessoas(value);
-                      }
-                    }}
-                    placeholder="Digite a quantidade"
-                    className="input-large"
-                    autoFocus
-                  />
                   {!isClienteInfoValid && (
                     <p className="warning-msg">Preencha nome e WhatsApp para continuar.</p>
                   )}
@@ -395,7 +562,6 @@ function App() {
             {/* STEP 2 */}
             {currentStep === 2 && (
               <section className="step-section">
-                <h2>🍖 Escolha o Churrasco</h2>
                 <div className="step-body">
                   <ChurrascoOptions
                     setChurrasco={setChurrasco}
@@ -409,10 +575,12 @@ function App() {
                       <CarnesSelector 
                         carnesCustomizadas={carnesCustomizadas}
                         setCarnesCustomizadas={setCarnesCustomizadas}
+                        availableMeats={meatsList}
                       />
                       <AcompanhamentosSelector 
                         acompanhamentosCustomizados={acompanhamentosCustomizados}
                         setAcompanhamentosCustomizados={setAcompanhamentosCustomizados}
+                        availableSideDishes={sidesList}
                       />
                     </div>
                   )}
@@ -423,7 +591,6 @@ function App() {
             {/* STEP 3 */}
             {currentStep === 3 && (
               <section className="step-section">
-                <h2>🍻 Escolha as Bebidas</h2>
                 <div className="step-body">
                   <BebidaOptions
                     setBebidas={setBebidas}
@@ -437,7 +604,6 @@ function App() {
             {/* STEP 4 */}
             {currentStep === 4 && (
               <section className="step-section">
-                <h2>🎉 Serviços Extras (Opcional)</h2>
                 <div className="step-body">
                   <ExtrasOptions extras={extras} setExtras={setExtras} extrasCatalog={extrasCatalog} />
                 </div>
@@ -447,7 +613,6 @@ function App() {
             {/* STEP 5 */}
             {currentStep === 5 && (
               <section className="step-section">
-                <h2>📋 Confirme seu Orçamento</h2>
                 <div className="step-body">
                   <Resumo 
                     numPessoas={numPessoas}
