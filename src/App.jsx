@@ -217,9 +217,9 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const hasAdminParam = new URLSearchParams(window.location.search).get('admin') === '1';
+    const isAdminPath = window.location.pathname === '/administrator';
 
-    if (!hasAdminParam) {
+    if (!isAdminPath) {
       setIsAdminMode(false);
       sessionStorage.removeItem(ADMIN_SESSION_KEY);
       return;
@@ -313,9 +313,9 @@ function App() {
     return true;
   };
 
-  // Show login panel if param is present but admin is not authenticated
-  const hasAdminParam = new URLSearchParams(window.location.search).get('admin') === '1';
-  if (hasAdminParam && !isAdminMode) {
+  // Show login panel if path is /administrator but admin is not authenticated
+  const isAdminPath = window.location.pathname === '/administrator';
+  if (isAdminPath && !isAdminMode) {
     return (
       <AdminLogin
         onLogin={(pwd) => {
@@ -327,9 +327,7 @@ function App() {
           }
         }}
         onCancel={() => {
-          const cleanUrl = new URL(window.location.href);
-          cleanUrl.searchParams.delete('admin');
-          window.location.href = cleanUrl.pathname + cleanUrl.search + cleanUrl.hash;
+          window.location.href = '/';
         }}
       />
     );
@@ -352,7 +350,7 @@ function App() {
         onLogout={() => {
           setIsAdminMode(false);
           sessionStorage.removeItem(ADMIN_SESSION_KEY);
-          window.location.href = window.location.pathname;
+          window.location.href = '/';
         }}
       />
     );
@@ -395,9 +393,7 @@ function App() {
             <span className="premium-dot">•</span>
             <span 
               onClick={() => {
-                const url = new URL(window.location.href);
-                url.searchParams.set('admin', '1');
-                window.location.href = url.pathname + url.search + url.hash;
+                window.location.href = '/administrator';
               }}
               style={{ cursor: 'pointer', textDecoration: 'underline' }}
               title="Acesso Administrativo"
@@ -471,9 +467,7 @@ function App() {
           <div className="nav-spacer">
             <button
               onClick={() => {
-                const url = new URL(window.location.href);
-                url.searchParams.set('admin', '1');
-                window.location.href = url.pathname + url.search + url.hash;
+                window.location.href = '/administrator';
               }}
               className="admin-nav-link"
               title="Painel Administrativo"
