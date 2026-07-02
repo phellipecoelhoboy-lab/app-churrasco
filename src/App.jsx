@@ -103,52 +103,69 @@ function App() {
     ];
   });
 
-  const [meatsList, setMeatsList] = useState(availableMeats);
-  const [sidesList, setSidesList] = useState(availableSideDishes);
+  const [isLoaded, setIsLoaded] = useState(!isSupabaseConfigured);
+
+  const [meatsList, setMeatsList] = useState(() => {
+    const saved = localStorage.getItem('meatsList');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error('Erro ao ler localStorage para meatsList', e); }
+    }
+    return availableMeats;
+  });
+
+  const [sidesList, setSidesList] = useState(() => {
+    const saved = localStorage.getItem('sidesList');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error('Erro ao ler localStorage para sidesList', e); }
+    }
+    return availableSideDishes;
+  });
 
   // Sync state changes with local storage, and with Supabase database if in admin mode
   useEffect(() => {
     localStorage.setItem('churrascoCatalog', JSON.stringify(churrascoCatalog));
-    if (isSupabaseConfigured && isAdminMode) {
+    if (isLoaded && isSupabaseConfigured && isAdminMode) {
       supabase.from('catalogos').upsert({ id: 'churrasco', dados: churrascoCatalog }).then(({ error }) => {
         if (error) console.error('Erro ao sincronizar churrasco no Supabase:', error);
       });
     }
-  }, [churrascoCatalog, isAdminMode]);
+  }, [churrascoCatalog, isAdminMode, isLoaded]);
 
   useEffect(() => {
     localStorage.setItem('beverageCatalog', JSON.stringify(beverageCatalog));
-    if (isSupabaseConfigured && isAdminMode) {
+    if (isLoaded && isSupabaseConfigured && isAdminMode) {
       supabase.from('catalogos').upsert({ id: 'beverages', dados: beverageCatalog }).then(({ error }) => {
         if (error) console.error('Erro ao sincronizar bebidas no Supabase:', error);
       });
     }
-  }, [beverageCatalog, isAdminMode]);
+  }, [beverageCatalog, isAdminMode, isLoaded]);
 
   useEffect(() => {
     localStorage.setItem('extrasCatalog', JSON.stringify(extrasCatalog));
-    if (isSupabaseConfigured && isAdminMode) {
+    if (isLoaded && isSupabaseConfigured && isAdminMode) {
       supabase.from('catalogos').upsert({ id: 'extras', dados: extrasCatalog }).then(({ error }) => {
         if (error) console.error('Erro ao sincronizar extras no Supabase:', error);
       });
     }
-  }, [extrasCatalog, isAdminMode]);
+  }, [extrasCatalog, isAdminMode, isLoaded]);
 
   useEffect(() => {
-    if (isSupabaseConfigured && isAdminMode) {
+    localStorage.setItem('meatsList', JSON.stringify(meatsList));
+    if (isLoaded && isSupabaseConfigured && isAdminMode) {
       supabase.from('catalogos').upsert({ id: 'available_meats', dados: meatsList }).then(({ error }) => {
         if (error) console.error('Erro ao sincronizar carnes no Supabase:', error);
       });
     }
-  }, [meatsList, isAdminMode]);
+  }, [meatsList, isAdminMode, isLoaded]);
 
   useEffect(() => {
-    if (isSupabaseConfigured && isAdminMode) {
+    localStorage.setItem('sidesList', JSON.stringify(sidesList));
+    if (isLoaded && isSupabaseConfigured && isAdminMode) {
       supabase.from('catalogos').upsert({ id: 'available_side_dishes', dados: sidesList }).then(({ error }) => {
         if (error) console.error('Erro ao sincronizar acompanhamentos no Supabase:', error);
       });
     }
-  }, [sidesList, isAdminMode]);
+  }, [sidesList, isAdminMode, isLoaded]);
 
   // Load catalogs from Supabase database on mount, and auto-seed if database is empty
   useEffect(() => {
@@ -210,6 +227,8 @@ function App() {
         }
       } catch (err) {
         console.error('Erro ao buscar catálogos do Supabase:', err);
+      } finally {
+        setIsLoaded(true);
       }
     };
 

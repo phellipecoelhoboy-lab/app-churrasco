@@ -225,7 +225,7 @@ function AdminPanel({
             ? {
                 ...item,
                 name: editingProduct.name.trim(),
-                price: 0,
+                price: item.price,
                 meats: editingProduct.meats,
                 sideDishes: editingProduct.sideDishes,
                 drinks: editingProduct.drinks,
@@ -264,7 +264,7 @@ function AdminPanel({
                 ...item,
                 name: editingProduct.name.trim(),
                 category: editingProduct.category,
-                price: 0,
+                price: item.price,
                 ingredients: editingProduct.ingredients.trim(),
               }
             : item
