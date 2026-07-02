@@ -2,6 +2,21 @@ import React, { useState } from 'react';
 
 const extraCategories = ['🍸 Caipis Gourmet', '🍹 Drinks Clássicos', '🎉 Serviços Adicionais'];
 
+const beverageEmojis = [
+  { emoji: '🍺', label: 'Cerveja/Chopp 🍺' },
+  { emoji: '🍻', label: 'Cervejas 🍻' },
+  { emoji: '🥤', label: 'Refrigerante/Lata 🥤' },
+  { emoji: '🍹', label: 'Coquetel/Drinks 🍹' },
+  { emoji: '🍷', label: 'Vinho 🍷' },
+  { emoji: '🥃', label: 'Dose/Whisky 🥃' },
+  { emoji: '🧃', label: 'Suco/Caixinha 🧃' },
+  { emoji: '🍼', label: 'Água/Infantil 🍼' },
+  { emoji: '🥂', label: 'Champanhe 🥂' },
+  { emoji: '🥥', label: 'Água de Coco 🥥' },
+  { emoji: '🍋', label: 'Limão/Caipirinha 🍋' },
+  { emoji: '🧊', label: 'Gelo 🧊' }
+];
+
 function AdminPanel({
   churrascoCatalog,
   setChurrascoCatalog,
@@ -20,7 +35,7 @@ function AdminPanel({
 
   // States for adding new items
   const [newCombo, setNewCombo] = useState({ name: '' });
-  const [newBeverageCategory, setNewBeverageCategory] = useState({ name: '', icon: '🍺' });
+  const [newBeverageCategory, setNewBeverageCategory] = useState({ name: '', icon: beverageEmojis[0].emoji });
   const [newBeverageOption, setNewBeverageOption] = useState({ categoryId: beverageCatalog[0]?.id ?? '', name: '' });
   const [newExtra, setNewExtra] = useState({ name: '', category: extraCategories[0], ingredients: '' });
   const [newMeatName, setNewMeatName] = useState('');
@@ -101,7 +116,7 @@ function AdminPanel({
       options: [],
     };
     setBeverageCatalog((prev) => [...prev, newItem]);
-    setNewBeverageCategory({ name: '', icon: '🍺' });
+    setNewBeverageCategory({ name: '', icon: beverageEmojis[0].emoji });
   };
 
   const handleAddBeverageOption = (e) => {
@@ -179,7 +194,7 @@ function AdminPanel({
         type,
         id: item.id,
         name: item.name,
-        icon: item.icon ?? '🍺',
+        icon: item.icon ?? beverageEmojis[0].emoji,
       });
     } else if (type === 'bebida-opcao') {
       setEditingProduct({
@@ -399,14 +414,20 @@ function AdminPanel({
                         onChange={(e) => setNewBeverageCategory({ ...newBeverageCategory, name: e.target.value })}
                         required
                       />
-                      <input
-                        type="text"
-                        placeholder="Ícone (Emoji - ex: 🍺)"
+                      <label style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.5rem', fontWeight: 600 }}>Ícone da Categoria (Emoji)</label>
+                      <select
                         value={newBeverageCategory.icon}
                         onChange={(e) => setNewBeverageCategory({ ...newBeverageCategory, icon: e.target.value })}
                         required
-                      />
-                      <button type="submit" className="btn-primary">+ Criar Categoria</button>
+                        style={{ background: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '0.6rem 1rem', borderRadius: '6px' }}
+                      >
+                        {beverageEmojis.map((item) => (
+                          <option key={item.emoji} value={item.emoji}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem' }}>+ Criar Categoria</button>
                     </form>
                   </div>
 
@@ -699,12 +720,18 @@ function AdminPanel({
               {/* Beverage Category Specific Fields */}
               {editingProduct.type === 'bebida-categoria' && (
                 <div className="input-field">
-                  <label>Ícone (Emoji)</label>
-                  <input
-                    type="text"
+                  <label>Ícone da Categoria (Emoji)</label>
+                  <select
                     value={editingProduct.icon}
                     onChange={(e) => setEditingProduct({ ...editingProduct, icon: e.target.value })}
-                  />
+                    style={{ background: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '0.6rem 1rem', borderRadius: '6px' }}
+                  >
+                    {beverageEmojis.map((item) => (
+                      <option key={item.emoji} value={item.emoji}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
 
