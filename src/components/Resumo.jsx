@@ -23,6 +23,10 @@ const Resumo = ({
   const todayISO = new Date().toISOString().split('T')[0];
   const WHATSAPP_NUMBER = '556282191226';
 
+  const EVOLUTION_API_URL = import.meta.env.VITE_EVOLUTION_API_URL;
+  const EVOLUTION_API_KEY = import.meta.env.VITE_EVOLUTION_API_KEY;
+  const EVOLUTION_INSTANCE = import.meta.env.VITE_EVOLUTION_INSTANCE;
+
   const getBebidaPrice = (beb) => {
     if (beb?.price !== undefined && beb?.price !== null && beb?.price !== '') {
       return Number(beb.price) || 0;
@@ -233,7 +237,47 @@ const Resumo = ({
       // 1. Garante a geração e o download do arquivo PDF na máquina do usuário
       triggerPdfDownload(file, fileName);
 
-      // 2. Direciona a conversa do WhatsApp para o número do churrasqueiro
+      // 2. Tenta enviar automaticamente via Evolution API
+      if (EVOLUTION_API_URL && EVOLUTION_API_KEY && EVOLUTION_INSTANCE) {
+        try {
+          const reader = new FileReader();
+          const base64Promise = new Promise((resolve, reject) => {
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+          });
+          const pdfBase64 = await base64Promise;
+
+          const payload = {
+            number: targetPhone,
+            mediatype: "document",
+            mimetype: "application/pdf",
+            caption: mensagem,
+            media: pdfBase64,
+            fileName: fileName
+          };
+
+          const response = await fetch(`${EVOLUTION_API_URL}/message/sendMedia/${EVOLUTION_INSTANCE}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': EVOLUTION_API_KEY
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            throw new Error(`Erro na API Evolution: ${response.statusText}`);
+          }
+
+          alert('✅ Orçamento enviado automaticamente para o WhatsApp do churrasqueiro!');
+          return;
+        } catch (apiError) {
+          console.warn('Falha no envio automático via Evolution API, usando redirecionamento tradicional:', apiError);
+        }
+      }
+
+      // 3. Fallback: Direciona a conversa do WhatsApp para o número do churrasqueiro
       const urlWhatsApp = `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(mensagem)}`;
       window.location.href = urlWhatsApp;
     } catch (error) {
