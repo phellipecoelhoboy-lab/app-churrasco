@@ -21,7 +21,7 @@ const Resumo = ({
   const pdfLayout = 'elegante';
 
   const todayISO = new Date().toISOString().split('T')[0];
-  const WHATSAPP_NUMBER = '5562999394165';
+  const WHATSAPP_NUMBER = '556282191226';
 
   const getBebidaPrice = (beb) => {
     if (beb?.price !== undefined && beb?.price !== null && beb?.price !== '') {
@@ -136,6 +136,11 @@ const Resumo = ({
 
       let savedOrcamentoMeta = null;
 
+      const totalChurrascoValor = churrasco ? churrasco.price * numPessoas : 0;
+      const totalBebidasValor = 0;
+      const totalExtrasValor = 0;
+      const totalEventoValor = calcularTotal();
+
       try {
         savedOrcamentoMeta = await saveOrcamentoWithPdf({
           budgetData: {
@@ -152,17 +157,17 @@ const Resumo = ({
             bebidas,
             extras,
             totals: {
-              churrasco: 0,
-              bebidas: 0,
-              extras: 0,
-              total: 0,
+              churrasco: totalChurrascoValor,
+              bebidas: totalBebidasValor,
+              extras: totalExtrasValor,
+              total: totalEventoValor,
             },
           },
           pdfFile: file,
           fileName,
         });
       } catch (saveError) {
-        console.warn('Falha ao salvar orçamento no Firebase:', saveError);
+        console.warn('Falha ao salvar orçamento:', saveError);
       }
 
       const dataFormatadaTexto = new Date(data).toLocaleDateString('pt-BR');
@@ -184,20 +189,21 @@ const Resumo = ({
       mensagem += '📍 *Pacote de Churrasco:*\n';
       mensagem += `${churrasco.name}\n`;
 
-      if (churrasco.isCustom) {
-        if (carnesCustomizadas && carnesCustomizadas.length > 0) {
-          mensagem += '\n🥩 *Carnes Selecionadas:*\n';
-          carnesCustomizadas.forEach((carne) => {
-            mensagem += `• ${carne}\n`;
-          });
-        }
+      const carnes = churrasco.isCustom ? carnesCustomizadas : (churrasco.meats || []);
+      const acompanhamentos = churrasco.isCustom ? acompanhamentosCustomizados : (churrasco.sideDishes || []);
 
-        if (acompanhamentosCustomizados && acompanhamentosCustomizados.length > 0) {
-          mensagem += '\n🥗 *Acompanhamentos Selecionados:*\n';
-          acompanhamentosCustomizados.forEach((acompanhamento) => {
-            mensagem += `• ${acompanhamento}\n`;
-          });
-        }
+      if (carnes && carnes.length > 0) {
+        mensagem += '\n🥩 *Carnes Inclusas:*\n';
+        carnes.forEach((carne) => {
+          mensagem += `• ${carne}\n`;
+        });
+      }
+
+      if (acompanhamentos && acompanhamentos.length > 0) {
+        mensagem += '\n🥗 *Acompanhamentos Inclusos:*\n';
+        acompanhamentos.forEach((acompanhamento) => {
+          mensagem += `• ${acompanhamento}\n`;
+        });
       }
 
       mensagem += '\n🍻 *Bebidas Selecionadas:*\n';
@@ -222,7 +228,7 @@ const Resumo = ({
       }
       mensagem += '✅ Gostaria de confirmar este orçamento para o meu evento!';
 
-      const targetPhone = '5562999394165';
+      const targetPhone = WHATSAPP_NUMBER;
 
       // 1. Garante a geração e o download do arquivo PDF na máquina do usuário
       triggerPdfDownload(file, fileName);

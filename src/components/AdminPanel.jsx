@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getOrcamentos, deleteOrcamento } from '../services/orcamentosService';
 
 const extraCategories = ['🍸 Caipis Gourmet', '🍹 Drinks Clássicos', '🎉 Serviços Adicionais'];
 
@@ -40,6 +41,85 @@ function AdminPanel({
   const [newExtra, setNewExtra] = useState({ name: '', category: extraCategories[0], ingredients: '' });
   const [newMeatName, setNewMeatName] = useState('');
   const [newSideName, setNewSideName] = useState('');
+
+  // Budget states
+  const [orcamentosList, setOrcamentosList] = useState([]);
+  const [loadingOrcamentos, setLoadingOrcamentos] = useState(false);
+  const [searchOrcamentoQuery, setSearchOrcamentoQuery] = useState('');
+
+  useEffect(() => {
+    if (activeTab === 'orcamentos') {
+      fetchOrcamentos();
+    }
+  }, [activeTab]);
+
+  const fetchOrcamentos = async () => {
+    setLoadingOrcamentos(true);
+    try {
+      const list = await getOrcamentos();
+      setOrcamentosList(list || []);
+    } catch (error) {
+      console.error('Erro ao buscar orçamentos:', error);
+    } finally {
+      setLoadingOrcamentos(false);
+    }
+  };
+
+  const handleDeleteOrcamento = async (id, pdfFileName) => {
+    if (window.confirm('⚠️ Tem certeza que deseja excluir este orçamento permanentemente?')) {
+      try {
+        const result = await deleteOrcamento(id, pdfFileName);
+        if (result.success) {
+          alert('✅ Orçamento excluído com sucesso.');
+          setOrcamentosList((prev) => prev.filter((item) => item.id !== id));
+        } else {
+          alert(`❌ Falha ao excluir: ${result.error || 'Erro desconhecido'}`);
+        }
+      } catch (err) {
+        console.error('Erro ao excluir orçamento:', err);
+        alert('❌ Ocorreu um erro ao excluir o orçamento.');
+      }
+    }
+  };
+
+  const openBase64InNewTab = (base64Data) => {
+    try {
+      const parts = base64Data.split(';base64,');
+      const contentType = parts[0].split(':')[1];
+      const raw = window.atob(parts[1]);
+      const rawLength = raw.length;
+      const uInt8Array = new Uint8Array(rawLength);
+      for (let i = 0; i < rawLength; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i);
+      }
+      const blob = new Blob([uInt8Array], { type: contentType });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, '_blank');
+    } catch (e) {
+      console.error('Erro ao abrir base64 PDF:', e);
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(`<iframe src="${base64Data}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+      }
+    }
+  };
+
+  const handleViewPdf = (orc) => {
+    if (!orc.pdfUrl) return;
+    if (orc.pdfUrl.startsWith('data:')) {
+      openBase64InNewTab(orc.pdfUrl);
+    } else {
+      window.open(orc.pdfUrl, '_blank');
+    }
+  };
+
+  const filteredOrcamentos = orcamentosList.filter((orc) => {
+    const q = searchOrcamentoQuery.toLowerCase().trim();
+    if (!q) return true;
+    const nameMatch = orc.clienteNome?.toLowerCase().includes(q);
+    const whatsappMatch = orc.clienteWhatsapp?.toLowerCase().includes(q);
+    return nameMatch || whatsappMatch;
+  });
 
   // ----------------------------------------------------
   // DELETE HANDLERS
@@ -341,6 +421,12 @@ function AdminPanel({
           >
             ⚙️ Carnes & Acompanhamentos
           </button>
+          <button
+            className={`tab-btn ${activeTab === 'orcamentos' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('orcamentos'); setEditingProduct(null); }}
+          >
+            📋 Orçamentos Salvos
+          </button>
         </aside>
 
         {/* WORKSPACE */}
@@ -631,6 +717,136 @@ function AdminPanel({
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ----------------------------------------------------
+              TAB: ORÇAMENTOS SALVOS
+             ---------------------------------------------------- */}
+          {activeTab === 'orcamentos' && (
+            <div className="admin-section">
+              <div className="section-title-bar">
+                <h2>📋 Orçamentos Salvos no Banco</h2>
+                <p>Visualize todos os orçamentos gerados pelos clientes. Você pode ver o PDF original, reimprimir ou remover registros.</p>
+              </div>
+
+              <div className="orcamentos-controls">
+                <input
+                  type="text"
+                  placeholder="🔍 Buscar por nome do cliente ou WhatsApp..."
+                  value={searchOrcamentoQuery}
+                  onChange={(e) => setSearchOrcamentoQuery(e.target.value)}
+                  className="search-input"
+                />
+                <button onClick={fetchOrcamentos} className="btn-refresh" disabled={loadingOrcamentos}>
+                  {loadingOrcamentos ? 'Carregando...' : '🔄 Atualizar'}
+                </button>
+              </div>
+
+              {loadingOrcamentos ? (
+                <div className="loading-spinner-container">
+                  <div className="loading-spinner"></div>
+                  <p>Buscando orçamentos no banco de dados...</p>
+                </div>
+              ) : (
+                <div className="orcamentos-list-container">
+                  {filteredOrcamentos.length === 0 ? (
+                    <div className="empty-state">
+                      <p>Nenhum orçamento encontrado.</p>
+                    </div>
+                  ) : (
+                    <div className="table-responsive">
+                      <table className="orcamentos-table">
+                        <thead>
+                          <tr>
+                            <th>Cliente</th>
+                            <th>WhatsApp</th>
+                            <th>Evento</th>
+                            <th>Pessoas</th>
+                            <th>Pacote</th>
+                            <th>Gerado em</th>
+                            <th>Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredOrcamentos.map((orc) => {
+                            const dateFormatted = orc.dataEvento
+                              ? new Date(orc.dataEvento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+                              : 'N/A';
+                            
+                            const createdDate = orc.createdAtUnix
+                              ? new Date(orc.createdAtUnix).toLocaleDateString('pt-BR')
+                              : 'N/A';
+
+                            return (
+                              <tr key={orc.id}>
+                                <td>
+                                  <strong className="client-name">{orc.clienteNome}</strong>
+                                </td>
+                                <td>
+                                  {orc.clienteWhatsapp ? (
+                                    <a
+                                      href={`https://wa.me/${orc.clienteWhatsapp.replace(/\D/g, '')}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="whatsapp-link"
+                                    >
+                                      💬 {orc.clienteWhatsapp}
+                                    </a>
+                                  ) : (
+                                    'N/A'
+                                  )}
+                                </td>
+                                <td>
+                                  <div className="event-info">
+                                    <span>📅 {dateFormatted}</span>
+                                    {orc.horarioEvento && <span className="event-time">🕒 {orc.horarioEvento}</span>}
+                                    {orc.localEvento && <span className="event-loc" title={orc.localEvento}>📍 {orc.localEvento}</span>}
+                                  </div>
+                                </td>
+                                <td>{orc.numPessoas}</td>
+                                <td>{orc.churrasco?.name || 'Personalizado'}</td>
+                                <td className="created-cell">{createdDate}</td>
+                                <td>
+                                  <div className="orc-actions">
+                                    {orc.pdfUrl ? (
+                                      <>
+                                        <button
+                                          onClick={() => handleViewPdf(orc)}
+                                          className="btn-action-view"
+                                          title="Visualizar PDF"
+                                        >
+                                          📄 Ver PDF
+                                        </button>
+                                        <button
+                                          onClick={() => handleViewPdf(orc)}
+                                          className="btn-action-print"
+                                          title="Visualizar e Imprimir"
+                                        >
+                                          🖨️ Reimprimir
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <span className="no-pdf-txt">Sem PDF</span>
+                                    )}
+                                    <button
+                                      onClick={() => handleDeleteOrcamento(orc.id, orc.pdfFileName)}
+                                      className="btn-action-delete"
+                                      title="Excluir Orçamento"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </main>
@@ -1368,6 +1584,229 @@ function AdminPanel({
 
         .check-row input {
           cursor: pointer;
+        }
+
+        /* ORÇAMENTOS TABLE & CONTROLS */
+        .orcamentos-controls {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+          align-items: center;
+        }
+
+        .search-input {
+          flex: 1;
+          background: #1e293b;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #ffffff;
+          padding: 0.75rem 1.2rem;
+          border-radius: 8px;
+          font-size: 0.95rem;
+          transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: #ff8c00;
+          box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+        }
+
+        .btn-refresh {
+          background: #334155;
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          padding: 0.75rem 1.5rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover:not(:disabled) {
+          background: #475569;
+        }
+
+        .loading-spinner-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 4rem 2rem;
+          color: #94a3b8;
+          gap: 1rem;
+        }
+
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid rgba(255, 255, 255, 0.1);
+          border-top-color: #ff8c00;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 4rem 2rem;
+          color: #94a3b8;
+          background: #1e293b;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .orcamentos-list-container {
+          background: #1e293b;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+          width: 100%;
+          overflow-x: auto;
+        }
+
+        .orcamentos-table {
+          width: 100%;
+          border-collapse: collapse;
+          text-align: left;
+          font-size: 0.9rem;
+        }
+
+        .orcamentos-table th {
+          background: #0f172a;
+          color: #94a3b8;
+          padding: 1rem 1.5rem;
+          font-weight: 600;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .orcamentos-table td {
+          padding: 1rem 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          color: #e2e8f0;
+          vertical-align: middle;
+        }
+
+        .orcamentos-table tr:hover {
+          background: rgba(255, 255, 255, 0.02);
+        }
+
+        .client-name {
+          color: #ffffff;
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+
+        .whatsapp-link {
+          color: #38bdf8;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.3rem;
+          font-weight: 500;
+          transition: color 0.2s;
+        }
+
+        .whatsapp-link:hover {
+          color: #0ea5e9;
+          text-decoration: underline;
+        }
+
+        .event-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+          font-size: 0.85rem;
+        }
+
+        .event-time {
+          color: #fb923c;
+        }
+
+        .event-loc {
+          color: #94a3b8;
+          max-width: 180px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .total-val {
+          color: #10b981;
+          font-weight: 700;
+          font-size: 0.95rem;
+        }
+
+        .created-cell {
+          color: #64748b;
+          font-size: 0.85rem;
+        }
+
+        .orc-actions {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+        }
+
+        .btn-action-view {
+          background: rgba(56, 189, 248, 0.15);
+          color: #38bdf8;
+          border: 1px solid rgba(56, 189, 248, 0.2);
+          border-radius: 6px;
+          padding: 0.4rem 0.8rem;
+          font-weight: 600;
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-action-view:hover {
+          background: #38bdf8;
+          color: #0f172a;
+        }
+
+        .btn-action-print {
+          background: rgba(251, 146, 60, 0.15);
+          color: #fb923c;
+          border: 1px solid rgba(251, 146, 60, 0.2);
+          border-radius: 6px;
+          padding: 0.4rem 0.8rem;
+          font-weight: 600;
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-action-print:hover {
+          background: #fb923c;
+          color: #0f172a;
+        }
+
+        .btn-action-delete {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.15);
+          border-radius: 6px;
+          padding: 0.4rem 0.6rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-action-delete:hover {
+          background: #ef4444;
+          color: #ffffff;
+        }
+
+        .no-pdf-txt {
+          color: #64748b;
+          font-size: 0.8rem;
+          font-style: italic;
         }
       `}</style>
     </div>
